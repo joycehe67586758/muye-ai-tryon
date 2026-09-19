@@ -2146,12 +2146,14 @@ function phonePageURL() {
   /* 本地打开用局域网地址（手机扫码可访问）；部署到公网后直接用当前域名 */
   const isLocal = !host || host === 'localhost' || host === '127.0.0.1'
     || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+  /* 注意：部署在子路径（如 GitHub Pages 的 /repo/）时要保留目录，不能用 location.origin */
+  const dir = location.pathname.replace(/[^/]*$/, '');
   const origin = isLocal
-    ? `http://${window.LAN_HOST || host}:${location.port || '5173'}`
-    : location.origin;
+    ? `http://${window.LAN_HOST || host}:${location.port || '5173'}/`
+    : location.origin + dir;
   const shortName = 'phone.html';
   const items = selItems().map(i => i.id).join(',');
-  return `${origin}/${shortName}?code=${S.code}&avatar=${S.avatar}&items=${items}`;
+  return `${origin}${shortName}?code=${S.code}&avatar=${S.avatar}&items=${items}`;
 }
 
 function makeQR(sel, text) {
