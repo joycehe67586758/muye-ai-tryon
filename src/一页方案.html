@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>AI 虚拟试衣大屏 · 一页产品方案</title>
+<style>
+@page{size:A4;margin:11mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:#1B1A17;font-size:9.1pt;line-height:1.5;font-variant-numeric:tabular-nums}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.5px solid #1B1A17;padding-bottom:5px;margin-bottom:8px}
+.hd h1{font-size:15pt;letter-spacing:-.2px}
+.hd .sub{font-size:8.4pt;color:#6E6A62;margin-top:3px}
+.hd .meta{font-size:8pt;color:#8C877C;text-align:right;line-height:1.5}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+h2{font-size:10.2pt;margin:0 0 4px;padding-left:8px;border-left:3px solid #111111;line-height:1.2}
+h2.b{border-left-color:#111111}
+section{margin-bottom:9px}
+p{margin-bottom:3px}
+b{font-weight:700}
+ul{margin:0 0 2px 12px}
+li{margin-bottom:2.5px}
+.steps{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0}
+.steps span{border:1px solid #E7E1D5;border-radius:4px;padding:2px 5px;font-size:8.3pt;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:8.6pt;margin-top:3px}
+th,td{text-align:left;padding:3.2px 5px;border-bottom:1px solid #EFEAE0;vertical-align:top}
+th{color:#8C877C;font-weight:600;font-size:8.1pt;background:#FFFFFF}
+.foot{margin-top:6px;border-top:1px solid #E7E1D5;padding-top:5px;font-size:7.8pt;color:#8C877C;display:flex;justify-content:space-between;gap:10px}
+.k{background:#F0F0F0;color:#111111;border-radius:3px;padding:0 3px;font-weight:600}
+.kb{background:#F0F0F0;color:#111111;border-radius:3px;padding:0 3px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div>
+    <h1>AI 虚拟试衣大屏 · 一页产品方案</h1>
+    <div class="sub">MUYE 沐野 · 商场门店场景｜大屏 3 步出效果，扫码到手机端完成决策与转化</div>
+  </div>
+  <div class="meta">产品原型 + 一页方案<br>真实模特 · 真实服装 · 摄像头实时试衣</div>
+</div>
+<div class="cols">
+  <div>
+    <section>
+      <h2>一、目标用户与场景</h2>
+      <p><b>主：到店但不愿排队试衣的顾客。</b>怕麻烦、逛店时间碎片化；痛点是试衣间排队、脱穿成本高、看实物想象不出上身效果。</p>
+      <p><b>次：陪同者与等候者。</b>顺手玩一下，带来停留时长与自然传播。</p>
+      <p><b>B 端：门店导购。</b>大屏是留客工具，结果必须能被导购接手，否则线索断在屏幕上。</p>
+    </section>
+    <section>
+      <h2>二、核心流程（≤3 步 / ≤60 秒）</h2>
+      <div class="steps"><span>① 驻足即开始</span><span>② 选身形</span><span>③ 选服装</span><span>④ 生成</span><span>⑤ 结果</span><span>⑥ 扫码到手机</span></div>
+      <p><b>手机端是完整站点，不是一个试衣页：</b>首页 → 分类 / 商品详情 → <b>AI 虚拟试穿（站内入口）</b> → 试穿结果 → 加入购物车 → 结算（门店自提 / 快递）→ 下单成功 → 我的订单 / 预约到店。扫码打开时直接落在"带着这件衣服的试穿结果页"，不需要用户重新找商品。</p>
+      <p><b>试穿页上的三个提效设计：</b>① <b>360° 转圈看全身</b>（左右滑动 / 点箭头，转满一圈自动切下一套）；② <b>自动搭配</b>——选中一件就给出搭配件与合计，一键换穿；③ <b>按身高体重 + 门店现货推荐</b>——算出身形与建议尺码，给 3 套并标注每套合计。男装形象自动切到男模特的试穿图，连衣裙等女装款自动隐藏。</p>
+      <p><b>全程零文字输入</b>：不注册、不要手机号，每步只有"点卡片"一种动作，候选 ≤6 个，按钮点击区 ≥120px，先给时间预期再让人投入。</p>
+      <p>默认用虚拟形象（不采集人脸）；"真人试穿"是显式可选项，授权后才开摄像头。</p>
+    </section>
+    <section>
+      <h2 class="b">三、大屏与手机端分工</h2>
+      <table>
+        <tr><th style="width:24%"></th><th>大屏</th><th>手机</th></tr>
+        <tr><td>角色</td><td>公共场景的"看到"</td><td>私人场景的"决策"</td></tr>
+        <tr><td>承担</td><td>吸引、快速出效果、扫码桥接</td><td>留存、尺码、库存、预约、支付</td></tr>
+        <tr><td>不承担</td><td>不登录、不支付、不放长文详情</td><td>不重复做大屏的生成交互</td></tr>
+        <tr><td>桥接</td><td colspan="2">一次性取件码 + 二维码（7 天有效，不填手机号也能用）</td></tr>
+      </table>
+    </section>
+  </div>
+  <div>
+    <section>
+      <h2>四、等待与失败（最容易答漏的一环）</h2>
+      <ul>
+        <li><b>等待不空白：</b>四阶段进度（读版型 → 贴合 → 渲染 → 出图）+ 剩余秒数 + 可取消。</li>
+        <li><b>等待可离场：</b>生成中就把二维码放出来，结果直接推到手机，人不必站在屏前。</li>
+        <li><b>失败三级兜底：</b>自动重试 1 次 → 云端失败回落本地 AR 截图 → 再不行给静态搭配图与商品信息。<b>绝不空手而归。</b></li>
+        <li><b>文案归因：</b>责任放在系统侧（"不是你的操作问题"），并强调"搭配已帮你留着"。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>五、隐私与合规</h2>
+      <ul>
+        <li><b>默认不采集人脸：</b>默认虚拟形象，不需要摄像头与手机号。</li>
+        <li><b>真人试穿需单独授权：</b>画面仅本机处理、不上传、不训练，生成后丢弃原始帧。</li>
+        <li><b>自动清除：</b>结果图 60 秒自动清除；无操作 90 秒清屏回首页（防身后的人看到）。</li>
+        <li><b>一次性 token：</b>取件码 7 天有效、可一键删除；不扫码就什么都不留。</li>
+        <li><b>出海：</b>"不采集生物特征"这条设计同时规避 GDPR 第 9 条特殊类别数据与 CCPA/CPRA 敏感信息义务；EN 优先双语、区域尺码（US/EU/UK/亚洲码）与本地触达渠道（WhatsApp / LINE / IG）。</li>
+      </ul>
+    </section>
+    <section>
+      <h2 class="b">六、AI Native 的关键取舍</h2>
+      <table>
+        <tr><th style="width:22%">环节</th><th>设计</th></tr>
+        <tr><td>双档渲染</td><td>本地实时 AR（0 秒 / 免费 / 看版型颜色）＋ 云端换装模型（约 18 秒 / 按次计费 / 照片级成图），把等待与成本的选择权交给用户</td></tr>
+        <tr><td>模型接入</td><td>接入层已做成可插拔：自建服务（ComfyUI / CatVTON / IDM-VTON，POST 人像＋服装＋体型参数）或 fal.ai 托管模型；未配置时自动回落本地预览。<b>人像输入 = 按所选体型挑的数字模特，或顾客现场拍的那张照片</b>——这就是"按体型生成"的落点</td></tr>
+        <tr><td>成本控制</td><td>同款同体型成品图缓存、每店每日限额、失败不计费并自动降级</td></tr>
+        <tr><td>能力边界</td><td>只做服装贴合，不做人脸识别；透明材质与复杂印花等不稳定品类只给静态搭配图；实时镜只在取景合格（上半身完整入镜）时才贴图，避免"假穿上"</td></tr>
+        <tr><td>可评测</td><td>肩线/贴图偏移误差、P95 时延、失败与重试率、扫码率——换模型先跑回归</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>七、转化路径与指标</h2>
+      <p>驻足 → 开始试穿 → 选形象/服装 → 生成 → 看到效果 → <span class="k">扫码带走</span> → 手机端看尺码与库存 → 加购 / 预约试衣 / 联系导购 → <span class="kb">到店成交</span>。</p>
+      <p>埋点：开始率、生成成功率与 P95 时延、<b>扫码率</b>、手机端停留与加购、预约试衣率、门店连带率、单次生成成本。线下最该盯的一个数：<b>扫码率</b>——它决定这块屏是玩具还是线索入口。</p>
+    </section>
+  </div>
+</div>
+<div class="foot">
+  <span>原型为个人练习作品，品牌与商品为虚构示例；素材由 AI 生成，无真实人物与第三方版权图。</span>
+  <span>交付：大屏原型 HTML ｜ 手机端原型 HTML ｜ 源码 ｜ 演示脚本</span>
+</div>
+</body>
+</html>
+

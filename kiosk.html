@@ -1,0 +1,2469 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MUYE 沐野 · AI 虚拟试衣大屏 · 可运行原型</title>
+<style>
+/* =========================================================================
+   视觉：卡其 + 蓝，北欧极简（参考 Vela 的奶油底 / 细线 / 大留白调性）
+   画布：1080 × 1920 竖屏，商场门店大屏
+   ========================================================================= */
+:root{
+  /* 黑白极简：黑色是唯一重点色，红色只用于破坏性操作 */
+  --ink:#111111; --ink2:#3D3D3D; --mut:#8C8C8C;
+  --line:#E6E6E6; --line2:#F1F1F1;
+  --bg:#F5F5F5; --card:#FFFFFF; --cream:#EFEFEF;
+  --khaki:#111111; --khakiD:#111111; --khakiSoft:#F0F0F0;
+  --blue:#111111; --blueD:#000000; --blueSoft:#F0F0F0; --blueL:#5A5A5A;
+  --rust:#D93025; --rustSoft:#FDECEA;
+  --sh:0 1px 2px rgba(0,0,0,.04), 0 12px 30px rgba(0,0,0,.06);
+  --fs-h1:56px; --fs-h2:46px; --fs-lead:30px; --fs-body:24px; --fs-sm:21px; --fs-xs:19px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#EDEDED;color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+
+/* ============================ 评审外壳 ============================ */
+.topbar{height:60px;display:flex;align-items:center;gap:14px;padding:0 24px;background:#FFFFFF;
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60}
+.topbar .t{font-size:15px;font-weight:600;letter-spacing:.2px}
+.topbar .badge{font-size:12px;color:var(--ink2);border:1px solid var(--line);background:var(--khakiSoft);
+  padding:4px 11px;border-radius:999px}
+.topbar .badge.blue{color:var(--ink2);border-color:var(--line);background:#FAFAFA}
+.topbar .spacer{flex:1}
+.tb-btn{font:13px/1 inherit;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:9px;
+  padding:10px 14px;cursor:pointer;transition:.15s}
+.tb-btn:hover{border-color:#BBBBBB;color:var(--ink)}
+.tb-btn.acc{border-color:var(--ink);color:#fff;background:var(--ink)}
+.layout{display:flex;gap:20px;padding:20px;align-items:flex-start;justify-content:center}
+.side{width:296px;flex:0 0 296px;background:#FFFFFF;border:1px solid var(--line);border-radius:14px;padding:16px}
+.side h3{margin:0 0 12px;font-size:12px;letter-spacing:1.4px;color:var(--mut);font-weight:700}
+.sitem{border-top:1px solid var(--line2);padding:11px 0;font-size:12.5px;line-height:1.65;color:#6E6E6E}
+.sitem:first-of-type{border-top:0;padding-top:0}
+.sitem b{display:block;color:var(--ink);font-size:13px;margin-bottom:3px}
+.sitem i{color:var(--blue);font-style:normal}
+.bezel{padding:14px;border-radius:22px;background:linear-gradient(160deg,#1E1E1E,#0D0D0D);
+  box-shadow:0 24px 60px rgba(0,0,0,.3),inset 0 0 0 1px #333333}
+.bezel .cam{width:10px;height:10px;border-radius:50%;background:#0C0B09;margin:0 auto 10px}
+.stage{position:relative;overflow:hidden;border-radius:10px;background:var(--bg)}
+.screen{width:1080px;height:1920px;transform-origin:top left;position:relative;overflow:hidden;
+  background:var(--bg);color:var(--ink);font-size:30px}
+
+/* ============================ 大屏通用 ============================ */
+.scr{position:absolute;inset:0;display:none;flex-direction:column;padding:38px 0 44px;background:var(--bg)}
+.scr.on{display:flex;animation:in .32s ease}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.kiosktop{display:flex;align-items:center;gap:16px;padding:0 60px 24px}
+.brand{display:flex;align-items:center;gap:13px;font-weight:700;font-size:29px;letter-spacing:2px;white-space:nowrap}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--khaki);display:inline-block;position:relative}
+.logo:after{content:"";position:absolute;inset:11px 10px;border-radius:2px;background:#FBF9F5;opacity:.9}
+.store{color:var(--mut);font-size:22px;white-space:nowrap}
+.sysinfo{margin-left:auto;font-size:21px;color:var(--khakiD);background:var(--khakiSoft);border-radius:999px;
+  padding:9px 20px;display:flex;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--khakiD);opacity:.75}
+.h1{font-size:56px;line-height:1.18;font-weight:600;margin:4px 60px 14px;letter-spacing:-1px}
+.h1.sm{font-size:46px}
+.sub{font-size:24px;color:var(--mut);margin:0 60px 30px;line-height:1.65}
+.sub b{color:var(--ink2);font-weight:600}
+.btn{font-family:inherit;font-size:28px;font-weight:600;border-radius:999px;padding:24px 40px;white-space:nowrap;
+  border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:.16s;line-height:1.2}
+.btn:hover{border-color:#C6BCA8}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary:hover{background:#27446C}
+.btn.khaki{background:var(--khaki);color:#fff;border-color:var(--khaki)}
+.btn.ghost{background:transparent}
+.btn.sm{font-size:22px;padding:13px 24px;border-radius:999px}
+.btn.xl{width:100%;font-size:36px;font-weight:600;padding:36px 44px;border-radius:22px;
+  display:flex;flex-direction:column;align-items:center;gap:10px}
+.btn.xl .hint{font-size:21px;font-weight:400;opacity:.62}
+.btn[disabled]{opacity:.34;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:21px;padding:8px 16px;border-radius:999px;white-space:nowrap;
+  background:var(--khakiSoft);color:var(--khakiD)}
+.pill.blue{background:var(--blueSoft);color:var(--blue)}
+
+/* 待机页 */
+.scr[data-scr="attract"]{background:#F7F5F1}
+.scr[data-scr="attract"]:before,.scr[data-scr="attract"]:after{display:none}
+.cover{flex:1;display:flex;background:#F7F5F1;color:#111}
+.cover-left{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 40px 0 96px}
+.cover-brand{position:absolute;top:60px;left:96px;font-family:Georgia,"Songti SC",serif;font-size:32px;letter-spacing:2px}
+.cover-brand span{font-family:inherit;font-size:26px;letter-spacing:6px}
+.cover h1{font-size:68px;line-height:1.2;letter-spacing:-2px;font-weight:600;margin:0 0 24px}
+.cover p{font-size:25px;line-height:1.7;color:#6B6B6B;margin:0 0 36px}
+.cover-cta{width:280px;background:#111;color:#fff;border:0;border-radius:999px;padding:28px 0;font-family:inherit;
+  font-size:27px;font-weight:600;cursor:pointer}
+.cover-cta:hover{background:#000}
+.cover-sub{display:flex;gap:14px;margin-top:24px}
+.cover-sub button{font-family:inherit;font-size:21px;background:#fff;border:1px solid #E3E0DA;border-radius:999px;
+  padding:20px 24px;text-align:left;cursor:pointer;line-height:1.3}
+.cover-sub button b{display:block;font-size:23px;margin-bottom:2px}
+.cover-sub button span{color:#8C8C8C;font-size:18px}
+.cover-fine{margin-top:22px;font-size:19px;color:#8C8C8C}
+.cover-fine a{color:#111;text-decoration:underline;cursor:pointer}
+.cover-cam{margin-top:18px;font-size:19px;color:#8C8C8C;display:flex;align-items:center;gap:8px}
+.cover-right{flex:0 0 560px;position:relative;margin:44px 44px 44px 0;border-radius:26px;overflow:hidden;background:#EFEDE8}
+.cover-right img{width:100%;height:100%;object-fit:cover;object-position:center 12%}
+.cover-tag{position:absolute;left:26px;bottom:26px;right:26px;background:rgba(255,255,255,.72);
+  backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.6);border-radius:20px;padding:18px 22px;font-size:21px;color:#111}
+.cover-tag b{display:block;font-size:24px;margin-bottom:4px}
+.attract-body{flex:1;display:flex;align-items:center;gap:10px;padding:0 60px}
+.attract-copy{flex:1 1 560px;max-width:580px}
+.eyebrow{font-size:20px;letter-spacing:6px;color:var(--khakiD);font-weight:700;margin-bottom:22px}
+.attract-copy h1{font-size:80px;line-height:1.1;margin:0 0 22px;font-weight:600;letter-spacing:-2px}
+.lead{font-size:30px;color:var(--ink2);margin:0 0 38px;line-height:1.6;font-weight:400}
+.usp{list-style:none;margin:0 0 44px;padding:0;display:flex;flex-direction:column;gap:16px}
+.usp li{font-size:25px;color:var(--ink2);display:flex;align-items:center;gap:14px}
+.usp li:before{content:"";width:18px;height:1.5px;background:var(--khaki);flex:0 0 18px}
+.usp b{font-weight:600;color:var(--ink)}
+.fineprint{font-size:20px;color:var(--mut);margin-top:22px;line-height:1.65}
+.fineprint b{color:var(--ink2)}
+.fineprint a{color:var(--blue);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.attract-art{flex:0 0 380px;height:1140px;position:relative}
+.attract-art .tryon{position:absolute;border-radius:20px;overflow:hidden;background:#EFE9DD;
+  box-shadow:0 12px 34px rgba(27,26,23,.13)}
+.attract-art .tryon:nth-child(1){top:0;left:34px;width:308px;opacity:.97}
+.attract-art .tryon:nth-child(2){top:340px;left:0;width:344px;z-index:2}
+.attract-art .tryon:nth-child(3){top:702px;left:44px;width:308px;z-index:3}
+.kioskfoot{display:flex;gap:44px;justify-content:center;font-size:21px;color:var(--mut);
+  padding:24px 60px 0;margin:0 60px;border-top:1px solid var(--line)}
+
+/* 步骤头 */
+.hd{display:flex;align-items:center;gap:18px;padding:0 60px 24px}
+.crumb{display:flex;align-items:center;gap:11px}
+.crumb .step{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);display:flex;
+  align-items:center;justify-content:center;font-size:22px;font-weight:600;color:var(--mut);background:#fff}
+.crumb .step.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.crumb .step.done{background:var(--blueSoft);border-color:#C9D8EA;color:var(--blue)}
+.crumb .line{width:30px;height:1px;background:var(--line)}
+.crumb .steptext{font-size:22px;color:var(--mut);margin-left:8px}
+.timer{margin-left:auto;font-size:20px;color:var(--mut);display:flex;align-items:center;gap:8px}
+.timer b{color:var(--khakiD);font-weight:600}
+
+/* 形象卡片 */
+.grid{display:grid;gap:22px;padding:0 60px}
+.grid.avatars{grid-template-columns:repeat(3,1fr);padding-bottom:196px}
+.grid.items{grid-template-columns:repeat(3,1fr);padding-bottom:236px}
+.avcard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 16px 20px;cursor:pointer;
+  transition:.18s;position:relative;text-align:center}
+.avcard:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.avcard svg{width:100%;height:322px;display:block}
+.avcard .nm{font-size:28px;font-weight:600;margin-top:6px;letter-spacing:.5px}
+.avcard .mt{font-size:21px;color:var(--mut);margin-top:5px}
+.avcard .tip{font-size:18px;color:var(--khakiD);background:var(--khakiSoft);border-radius:999px;
+  padding:5px 13px;display:inline-block;margin-top:11px}
+.avcard.sel{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}
+.avcard.sel:after{content:"✓";position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;
+  background:var(--blue);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center}
+
+/* 商品 */
+.tabs{display:flex;gap:12px;padding:0 60px;margin-bottom:22px;align-items:center}
+.tab{font-family:inherit;font-size:25px;padding:14px 30px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;cursor:pointer;color:var(--ink2);transition:.15s}
+.tab:hover{border-color:#C6BCA8}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
+.tabhint{font-size:20px;color:var(--mut);margin-left:8px}
+.itemcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;
+  transition:.18s;position:relative}
+.itemcard:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.itemcard .im{height:380px;background:#F4F4F4;display:flex;
+  align-items:center;justify-content:center;overflow:hidden}
+.itemcard .im svg{height:282px;width:100%}
+.itemcard .info{padding:15px 20px 20px}
+.itemcard .nm{font-size:26px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.itemcard .meta{font-size:20px;color:var(--mut);margin-top:7px;display:flex;justify-content:space-between}
+.itemcard .pr{font-size:28px;font-weight:600;color:var(--blue);margin-top:9px;letter-spacing:-.5px}
+.itemcard.sel{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueSoft)}
+.itemcard.sel:after{content:"✓";position:absolute;top:13px;right:13px;width:44px;height:44px;border-radius:50%;
+  background:var(--blue);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center}
+.tag{position:absolute;top:13px;left:13px;background:rgba(255,255,255,.92);border:1px solid var(--line);
+  color:var(--khakiD);font-size:18px;padding:5px 12px;border-radius:999px;letter-spacing:.5px}
+
+/* 结算条 */
+.bottombar{position:absolute;left:48px;right:48px;bottom:44px;background:#fff;border:1px solid var(--line);
+  border-radius:20px;padding:18px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(27,26,23,.06)}
+.bottombar .btn{font-size:24px;padding:18px 24px;flex:0 0 auto}
+.sel-list{flex:1;min-width:0;display:flex;gap:12px;flex-wrap:wrap}
+.selchip{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.selchip{background:var(--khakiSoft);border-radius:999px;padding:11px 18px;font-size:22px;
+  display:flex;align-items:center;gap:9px}
+.selchip b{font-weight:600;color:var(--khakiD)}
+.selchip i{font-style:normal;color:var(--khakiD);cursor:pointer;opacity:.55;font-size:24px;line-height:1}
+.selchip.empty{background:#F4F1EA;color:var(--mut)}
+.est{flex:0 0 auto;font-size:17px;color:var(--mut);text-align:right;line-height:1.3}
+.est b{display:block;font-size:22px;color:var(--ink);font-weight:600;margin-top:2px}
+
+/* 生成等待 */
+.genwrap{flex:1;display:flex;gap:40px;padding:6px 60px 0}
+.genleft{flex:1;display:flex;flex-direction:column;align-items:center}
+.ringbox{position:relative;width:340px;height:340px;margin:16px 0 6px}
+.ringbox svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringbox .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.ringbox .pct b{font-size:70px;font-weight:500;line-height:1;letter-spacing:-2px}
+.ringbox .pct span{font-size:22px;color:var(--mut)}
+.gensteps{list-style:none;margin:20px 0 0;padding:0;width:100%;max-width:620px}
+.gensteps li{display:flex;align-items:center;gap:16px;font-size:25px;padding:15px 0;color:var(--mut);
+  border-bottom:1px solid var(--line2)}
+.gensteps li .bl{width:26px;height:26px;border-radius:50%;border:1px solid #D9D2C4;flex:0 0 26px;position:relative}
+.gensteps li.on{color:var(--ink)}
+.gensteps li.on .bl{border-color:var(--blue);border-width:7px}
+.gensteps li.done{color:var(--ink2)}
+.gensteps li.done .bl{border-color:var(--blue);background:var(--blue)}
+.gensteps li.done .bl:after{content:"✓";position:absolute;inset:0;color:#fff;font-size:16px;
+  display:flex;align-items:center;justify-content:center}
+.genright{flex:0 0 380px;display:flex;flex-direction:column;gap:16px}
+.qrcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;text-align:center}
+.qrcard h4{margin:0 0 8px;font-size:26px;font-weight:600}
+.qrcard p{margin:0 0 18px;font-size:20px;color:var(--mut);line-height:1.55}
+.qrbox{width:250px;height:250px;margin:0 auto;border-radius:12px;overflow:hidden;background:#fff}
+.qrbox canvas,.qrbox img{width:250px!important;height:250px!important;display:block}
+.codepill{margin-top:16px;font-size:24px;letter-spacing:6px;font-weight:600;background:var(--khakiSoft);
+  color:var(--khakiD);border-radius:10px;padding:11px 0}
+.fallback-note{font-size:19px;color:var(--ink2);line-height:1.7;background:#FBF9F4;border:1px solid var(--line);
+  border-radius:16px;padding:18px}
+.fallback-note b{color:var(--blue)}
+
+/* 结果页 */
+.reswrap{flex:1;display:flex;gap:30px;padding:4px 60px 0;min-height:0;align-items:center}
+.resfig{flex:1.12;aspect-ratio:1/1.06;align-self:center;background:#F4F4F4;border:1px solid var(--line);
+  border-radius:22px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;min-width:0}
+.resfig svg{height:100%;max-height:1150px;width:auto}
+.resfig .badge{position:absolute;top:20px;left:20px;background:rgba(255,255,255,.92);border:1px solid var(--line);
+  color:var(--khakiD);font-size:19px;padding:8px 16px;border-radius:999px;font-weight:600}
+.resfig .seg{position:absolute;top:18px;right:18px;display:flex;background:rgba(255,255,255,.92);
+  border:1px solid var(--line);border-radius:999px;padding:4px}
+.resfig .seg button{font-family:inherit;font-size:20px;border:0;background:transparent;padding:9px 18px;
+  border-radius:999px;cursor:pointer;color:var(--mut)}
+.resfig .seg button.on{background:var(--ink);color:#fff}
+.resinfo{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px 22px}
+.card h4{margin:0 0 12px;font-size:21px;color:var(--mut);font-weight:600;letter-spacing:1.4px}
+.rowitem{display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.rowitem:last-of-type{border-bottom:0}
+.rowitem .sw{width:48px;height:48px;border-radius:11px;flex:0 0 48px;border:1px solid rgba(0,0,0,.05)}
+.rowitem .nm{font-size:24px;font-weight:600;flex:1}
+.rowitem .mt{font-size:19px;color:var(--mut);display:block;font-weight:400;margin-top:3px}
+.rowitem .pr{font-size:25px;font-weight:600;color:var(--blue)}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-size:21px;color:var(--mut);
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--line2)}
+.total b{font-size:34px;color:var(--ink);font-weight:600;letter-spacing:-1px}
+.sizebox{display:flex;align-items:center;gap:16px}
+.sizebox .sz{width:80px;height:80px;border-radius:16px;background:var(--cream);border:1px solid var(--line);
+  color:var(--ink);font-size:34px;font-weight:500;display:flex;align-items:center;justify-content:center;flex:0 0 80px}
+.sizebox .txt{font-size:21px;color:var(--mut);line-height:1.55}
+.sizebox .txt b{display:block;font-size:24px;color:var(--ink);font-weight:600;margin-bottom:3px}
+.rescta{display:flex;gap:12px}
+.rescta .btn{flex:1;text-align:center;justify-content:center}
+.clearpill{margin-left:auto;font-size:20px;color:var(--rust);background:var(--rustSoft);border-radius:999px;
+  padding:9px 18px;display:flex;align-items:center;gap:10px}
+.clearpill b{font-weight:600}
+.clearpill .mini{width:22px;height:22px;border-radius:50%;background:conic-gradient(#A9522F 0deg,#F3DAD6 0)}
+.resfoot{display:flex;gap:14px;padding:18px 60px 0;margin-top:8px;border-top:1px solid var(--line);align-items:center}
+
+/* 失败页 */
+.failwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 60px}
+.failcard{background:#fff;border:1px solid var(--line);border-radius:24px;padding:46px 46px 40px;
+  width:100%;max-width:820px;text-align:center}
+.failicon{width:104px;height:104px;border-radius:50%;background:var(--rustSoft);color:var(--rust);
+  font-size:54px;font-weight:400;display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+.failcard h2{margin:0 0 14px;font-size:42px;font-weight:600;letter-spacing:-.5px}
+.failcard .why{font-size:23px;color:var(--mut);line-height:1.7;margin:0 auto 16px;max-width:620px}
+.failcard .why b{color:var(--ink2);font-weight:600}
+.failcard .log{font-size:19px;color:var(--mut);background:#FAF7F1;border:1px solid var(--line);
+  border-radius:12px;padding:11px 16px;display:inline-block;margin-bottom:26px}
+.fallbacks{display:flex;flex-direction:column;gap:12px;margin-top:6px;text-align:left}
+.fb{display:flex;align-items:center;gap:18px;border:1px solid var(--line);border-radius:18px;padding:19px 22px;
+  cursor:pointer;transition:.16s;background:#fff}
+.fb:hover{border-color:#BFD0E6;background:#FBFCFE}
+.fb .idx{width:46px;height:46px;border-radius:14px;background:var(--khakiSoft);color:var(--khakiD);
+  font-size:23px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 46px}
+.fb .tx{flex:1}
+.fb .tx b{display:block;font-size:26px;font-weight:600;margin-bottom:4px}
+.fb .tx span{font-size:20px;color:var(--mut)}
+.fb .go{font-size:26px;color:var(--mut)}
+.fb.primary{border-color:#C9D8EA;background:var(--blueSoft)}
+.fb.primary .idx{background:#fff;color:var(--blue)}
+
+/* toast / 弹层 */
+.toast{position:absolute;left:50%;bottom:110px;transform:translate(-50%,16px);background:rgba(27,26,23,.94);
+  color:#fff;font-size:24px;padding:20px 32px;border-radius:16px;opacity:0;pointer-events:none;
+  transition:.28s;z-index:40;max-width:840px;text-align:center;line-height:1.5}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.modal{position:absolute;inset:0;background:rgba(27,26,23,.5);display:none;align-items:center;
+  justify-content:center;z-index:50;padding:60px;backdrop-filter:blur(3px)}
+.modal.on{display:flex}
+.modal .box{background:#FBF9F5;border-radius:22px;padding:42px 44px;max-width:820px;width:100%;
+  max-height:1560px;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.2)}
+.modal h3{margin:0 0 12px;font-size:38px;font-weight:600;letter-spacing:-.5px}
+.modal .lead{margin:0 0 22px;font-size:22px;color:var(--mut);line-height:1.65}
+.modal .lead b{color:var(--ink2)}
+.modal .dl{margin:0 0 22px;padding:0;list-style:none}
+.modal .dl li{font-size:22px;color:var(--ink2);line-height:1.7;padding:12px 0 12px 30px;position:relative;
+  border-bottom:1px solid var(--line2)}
+.modal .dl li:last-child{border-bottom:0}
+.modal .dl li:before{content:"";position:absolute;left:8px;top:24px;width:10px;height:1.5px;background:var(--khaki)}
+.modal .dl li b{color:var(--ink);font-weight:600}
+.modal .acts{display:flex;gap:12px;justify-content:flex-end;margin-top:8px}
+.pillbar{position:absolute;left:0;right:0;top:0;height:6px;background:var(--blue);transform-origin:left;z-index:30;opacity:.85}
+
+/* 手机端预览 */
+.phonewrap{display:flex;gap:34px;align-items:flex-start}
+.phone{width:430px;flex:0 0 430px;background:#1D1C19;border-radius:42px;padding:13px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.phone .pv{background:var(--bg);border-radius:31px;overflow:hidden;height:1120px;display:flex;flex-direction:column}
+.pv .pvtop{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 12px;font-size:17px;color:var(--mut)}
+.pv .pvhero{flex:1;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#F4F0E7,#EDE7DA);margin:0 18px;border-radius:18px;overflow:hidden}
+.pv .pvhero svg{height:96%}
+.pv .pvrow{display:flex;justify-content:space-between;font-size:17px;padding:9px 22px;color:var(--ink2)}
+.pv .pvrow b{font-weight:600;color:var(--blue)}
+.pv .pvbtn{margin:9px 18px 0;background:var(--blue);color:#fff;text-align:center;border-radius:14px;
+  padding:14px;font-size:19px;font-weight:600}
+.pv .pvbtn.gh{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:500}
+.pv .pvtip{font-size:14px;color:var(--mut);padding:14px 22px 18px;line-height:1.5}
+.phonewrap .txt{flex:1;padding-top:6px}
+
+/* 平铺搭配 */
+.scr{--bg:url(assets/process/worn__w4.jpg)}
+/* 封面保持原来的浅色编辑风（不套用玻璃暗底） */
+.scr[data-scr="attract"]{background:#F6F3EC}
+.scr[data-scr="attract"]:before,.scr[data-scr="attract"]:after{display:none}
+.scr[data-scr="attract"] .brand{color:var(--ink)}
+.scr[data-scr="attract"] .store{color:var(--mut)}
+.scr[data-scr="attract"] .logo{background:#111}
+.scr[data-scr="attract"] .logo:after{background:#F6F3EC;opacity:1}
+.scr[data-scr="attract"] .sysinfo{background:#EFEFEF;border:0;color:var(--ink2);backdrop-filter:none}
+.scr[data-scr="attract"] .sysinfo .dot{background:#111;opacity:.6}
+.scr[data-scr="attract"] .eyebrow{color:var(--mut);text-shadow:none}
+.scr[data-scr="attract"] .h1,.scr[data-scr="attract"] .attract-copy h1{color:var(--ink);text-shadow:none}
+.scr[data-scr="attract"] .lead,.scr[data-scr="attract"] .sub{color:var(--ink2);text-shadow:none}
+.scr[data-scr="attract"] .usp li,.scr[data-scr="attract"] .fineprint{color:var(--ink2);text-shadow:none}
+.scr[data-scr="attract"] .usp li:before{background:#111}
+.scr[data-scr="attract"] .usp b,.scr[data-scr="attract"] .fineprint b{color:var(--ink)}
+.scr[data-scr="attract"] .fineprint a{color:var(--ink)}
+.scr[data-scr="attract"] .kioskfoot{color:var(--mut);border-top-color:var(--line)}
+.scr[data-scr="attract"] .btn{background:#fff;border-color:var(--line);backdrop-filter:none}
+.scr[data-scr="attract"] .btn.primary{background:#111;border-color:#111;color:#fff}
+.scr[data-scr="attract"] .attract-art .tryon{background:#F1F1F1;box-shadow:0 12px 34px rgba(0,0,0,.10)}
+.scr[data-scr="avatar"]{--bg:url(assets/process/models__m1.jpg)}
+.scr[data-scr="outfit"]{--bg:url(assets/process/worn__w1.jpg)}
+.scr[data-scr="gen"]{--bg:url(assets/process/worn__w3.jpg)}
+.scr[data-scr="fail"]{--bg:url(assets/process/worn__w2.jpg)}
+.scr[data-scr="photo"],.scr[data-scr="live"]{--bg:none}
+/* ================= 全站悬浮玻璃主题 ================= */
+.scr{background:#151515;overflow:hidden}
+.scr:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:var(--bg);background-size:cover;background-position:center 18%;
+  filter:blur(5px) brightness(.9);transform:scale(1.05)}
+.scr:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.46) 0%,rgba(0,0,0,.22) 30%,rgba(0,0,0,.42) 100%)}
+.scr>*{position:relative;z-index:2}
+.scr[data-scr="photo"]:before,.scr[data-scr="live"]:before{display:none}
+.scr[data-scr="photo"]:after,.scr[data-scr="live"]:after{background:none}
+/* 文字：直接压在底图上的用白色 */
+.kiosktop .brand,.kiosktop .store{color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.h1,.h1.sm{color:#fff;text-shadow:0 3px 18px rgba(0,0,0,.55)}
+.sub,.lead,.eyebrow{color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.sub b,.lead b{color:#fff}
+.usp li,.fineprint{color:rgba(255,255,255,.92);text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.usp li:before{background:#fff}
+.usp b,.fineprint b{color:#fff;background:none}
+.scr[data-scr="attract"]:after{background:linear-gradient(90deg,rgba(0,0,0,.66) 0%,rgba(0,0,0,.34) 46%,rgba(0,0,0,.30) 100%)}
+#camStatus{margin-top:12px;font-size:19px;margin-bottom:16px}
+.kiosktop .sysinfo{white-space:nowrap;max-width:460px;overflow:hidden;text-overflow:ellipsis}
+.attract-art{flex:0 0 350px;height:980px}
+.attract-art .tryon:nth-child(1){top:0;left:18px;width:266px}
+.attract-art .tryon:nth-child(2){top:286px;left:0;width:300px}
+.attract-art .tryon:nth-child(3){top:576px;left:22px;width:262px}
+.fineprint a{color:#fff}
+.timer,.crumb .steptext{color:rgba(255,255,255,.86);text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.kioskfoot{color:rgba(255,255,255,.8);border-top-color:rgba(255,255,255,.28)}
+/* 玻璃容器 */
+.kiosktop .sysinfo{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.5);color:#111}
+.kiosktop .dot{background:#111;opacity:.7}
+.logo{background:rgba(255,255,255,.92)}
+.logo:after{background:#111;opacity:.85}
+.crumbleft{}
+.crumb .step{background:rgba(255,255,255,.62);backdrop-filter:blur(18px);border-color:rgba(255,255,255,.5);color:#111}
+.crumb .step.on{background:#111;color:#fff;border-color:#111}
+.crumb .line{background:rgba(255,255,255,.45)}
+.card,.avcard,.itemcard,.bottombar,.qrcard,.failcard,.tab,.selchip,.gthumb,.resfig,.modal .box{
+  background:rgba(255,255,255,.56);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  border-color:rgba(255,255,255,.46);box-shadow:0 12px 34px rgba(0,0,0,.16)}
+.avcard.sel,.itemcard.sel{border-color:#111;box-shadow:0 0 0 4px rgba(255,255,255,.45)}
+.tab{color:#111}
+.tab.on{background:#111;color:#fff;border-color:#111}
+.tabhint{color:rgba(255,255,255,.75)}
+.btn{background:rgba(255,255,255,.62);backdrop-filter:blur(20px);border-color:rgba(255,255,255,.5)}
+.btn:hover{background:rgba(255,255,255,.78)}
+.btn.primary{background:#111;border-color:#111;color:#fff}
+.btn.primary:hover{background:#000}
+.btn.ghost{background:rgba(255,255,255,.42)}
+.selchip{background:rgba(255,255,255,.7)}
+.est{color:rgba(255,255,255,.85)}
+.est b{color:#fff}
+.gensteps li{color:rgba(255,255,255,.72);border-bottom-color:rgba(255,255,255,.18)}
+.gensteps li.on{color:#fff}
+.gensteps li.done{color:rgba(255,255,255,.9)}
+.gensteps li .bl{border-color:rgba(255,255,255,.5)}
+.gensteps li.done .bl,.gensteps li.on .bl{border-color:#fff;background:#fff}
+.gensteps li.done .bl:after{color:#111}
+.ringbox .pct b{color:#fff}
+.ringbox .pct span{color:rgba(255,255,255,.75)}
+.fallback-note{background:rgba(255,255,255,.45);border-color:rgba(255,255,255,.4);backdrop-filter:blur(20px)}
+.resfoot{border-top-color:rgba(255,255,255,.25)}
+.resfoot span{color:rgba(255,255,255,.8)!important}
+.rflat{background:#F5F5F5!important}
+.flatlay{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:28px;width:100%}
+.fl-item{background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
+.fl-img{height:290px;display:flex;align-items:center;justify-content:center}
+.fl-img img{max-height:282px;max-width:100%;object-fit:contain}
+.fl-meta b{display:block;font-size:23px;margin-top:6px;font-weight:600}
+.fl-meta span{font-size:19px;color:var(--mut)}
+
+/* ============ 真人照片 + 真实服装 合成 ============ */
+.tryon{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:16px;background:#F1F1F1}
+.tryon .base{width:100%;height:100%;object-fit:contain;display:block}
+.tryon .gl{position:absolute;height:auto;pointer-events:none}
+.avcard .tryon{aspect-ratio:3/4}
+.avcard .tryon .base{width:100%;height:100%;object-fit:contain}
+.avcard .tryon .gl{display:none}
+.gthumb{width:100%;height:380px;overflow:hidden}
+.gthumb img{width:100%;height:100%;object-fit:contain;display:block}
+.resfig .tryon{height:100%;aspect-ratio:auto;border-radius:0;background:transparent}
+.resfig .tryon .base{width:100%;height:100%;object-fit:contain;object-position:center}
+
+/* ============ 真人试穿（摄像头 AR 镜） ============ */
+.rfull{flex:1;position:relative;margin:0 0 0 0;overflow:hidden;background:#111}
+.rbg{position:absolute;inset:0;overflow:hidden;background:#191919}
+.rbg:before{content:"";position:absolute;inset:-12%;background-image:var(--img);background-size:cover;
+  background-position:center 18%;filter:blur(46px) saturate(.92) brightness(.88);transform:scale(1.06)}
+.rbg img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:80%;width:auto;max-width:none}
+.rveil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.34) 0%,rgba(0,0,0,0) 24%,rgba(0,0,0,0) 56%,rgba(0,0,0,.46) 100%)}
+.rbg{cursor:grab;touch-action:none}
+.rbg:active{cursor:grabbing}
+.rbg img{pointer-events:none;-webkit-user-drag:none;user-select:none}
+.rspinbtn{position:absolute;top:30%;transform:translateY(-50%);width:118px;height:118px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:46px;cursor:pointer;user-select:none;z-index:3}
+.rspinbtn.l{left:36px}
+.rspinbtn.r{right:36px}
+.glass{background:rgba(255,255,255,.52);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.42);box-shadow:0 12px 34px rgba(0,0,0,.16);color:var(--ink)}
+.rtop{position:absolute;top:38px;left:0;right:0;display:flex;align-items:center;gap:18px;padding:0 40px}
+.rbtn{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer}
+.rtitle{margin:0 auto;font-size:30px;font-weight:600;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.rseg{display:flex;border-radius:999px;padding:5px;gap:4px}
+.rseg button{font-family:inherit;font-size:20px;border:0;background:transparent;padding:12px 18px;border-radius:999px;cursor:pointer;color:var(--ink2)}
+.rseg button.on{background:#111;color:#fff}
+.rbadge{position:absolute;top:124px;left:40px;border-radius:999px;padding:9px 18px;font-size:19px;color:var(--ink2)}
+.rpin{position:absolute;left:44px;top:660px;display:flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:999px}
+.rpin img{width:52px;height:64px;object-fit:cover;border-radius:10px;background:#EDEDED}
+.rpin b{font-size:22px;font-weight:600;white-space:nowrap}
+.rpin i{width:34px;height:34px;border-radius:50%;background:#E23B2E;color:#fff;font-size:20px;font-style:normal;
+  display:flex;align-items:center;justify-content:center;cursor:pointer}
+.rside{position:absolute;right:36px;bottom:600px;display:flex;flex-direction:column;gap:16px}
+.rsidebtn{width:104px;height:104px;border-radius:50%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;font-size:17px;cursor:pointer;line-height:1.15}
+.rsidebtn em{font-style:normal;font-size:28px}
+.rqr{position:absolute;left:44px;bottom:560px;width:268px;border-radius:26px;padding:16px 16px 14px;text-align:center}
+.rqr .qrbox{width:100%;height:236px;margin:0}
+.rqr .qrbox canvas,.rqr .qrbox img{width:236px!important;height:236px!important}
+.rqr .code{font-size:20px;color:var(--ink2);margin-top:8px}
+.rqr .code b{letter-spacing:2px;color:var(--ink)}
+.rqr .tip{font-size:17px;color:var(--mut);margin-top:2px}
+.rdock{position:absolute;left:44px;right:44px;bottom:44px;border-radius:34px;padding:20px 22px 22px}
+.rmeta{display:flex;align-items:baseline;gap:10px;font-size:21px;color:var(--ink2);margin-bottom:14px}
+.rmeta b{font-size:28px;color:var(--ink)}
+.rrail{display:flex;gap:12px;overflow:hidden}
+.rthumb{flex:1 1 0;min-width:0;height:168px;border-radius:18px;overflow:hidden;background:#fff;position:relative;cursor:pointer}
+.rthumb img{width:100%;height:100%;object-fit:cover}
+.rthumb.on:after{content:"✓";position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;
+  background:#111;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center}
+.rcta{width:100%;margin-top:16px;background:#111;color:#fff;border:0;border-radius:999px;padding:28px 0;
+  font-family:inherit;font-size:29px;font-weight:600;cursor:pointer}
+.rfine{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-size:18px;color:var(--mut);margin-top:10px}
+.rfine .mini{display:inline-block;width:18px;height:18px;border-radius:50%;background:#E7E7E7;vertical-align:-3px;margin-left:6px}
+.rflat{position:absolute;inset:0;background:var(--bg);overflow:auto;display:none}
+.rflat.on{display:block}
+.rpair{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:20px;color:var(--ink2)}
+.rpair img{width:44px;height:54px;object-fit:cover;border-radius:10px}
+.rpair b{color:var(--ink)}
+.rpair button{font-family:inherit;font-size:19px;border:1px solid var(--line);background:#fff;border-radius:999px;
+  padding:8px 16px;cursor:pointer;margin-left:auto}
+.spin-hint{position:absolute;left:44px;top:178px;display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.52);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.42);
+  border-radius:999px;padding:10px 18px;font-size:19px;color:var(--ink2)}
+.inp{font-family:inherit;font-size:22px;width:130px;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.7);color:var(--ink)}
+.livewrap{flex:1;display:flex;gap:26px;padding:6px 60px 0;min-height:0}
+.livebox{flex:1;position:relative;background:#14171A;border-radius:20px;overflow:hidden;min-width:0}
+.livebox video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.livebox canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.livebox .tagline{position:absolute;top:18px;left:18px;background:rgba(255,255,255,.92);color:var(--blue);
+  font-size:20px;font-weight:600;padding:8px 16px;border-radius:999px}
+.livebox .fps{position:absolute;top:18px;right:18px;background:rgba(20,23,26,.55);color:#fff;font-size:18px;
+  padding:7px 14px;border-radius:999px}
+.livebox .hintbar{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(20,23,26,.85),transparent);
+  color:#fff;font-size:21px;padding:44px 24px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.livebox .hintbar kbd{background:rgba(255,255,255,.16);border-radius:8px;padding:4px 10px;font-family:inherit;font-size:19px}
+.livebox .err{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;color:#fff;text-align:center;padding:40px;background:#1D2023}
+.livebox .err.on{display:flex}
+/* 拍照取景框 */
+.frameguide{position:absolute;left:50%;top:5%;transform:translateX(-50%);width:44%;height:88%;
+  border:2px dashed rgba(255,255,255,.72);border-radius:150px 150px 90px 90px;pointer-events:none}
+.frameguide:after{content:"站到框内 · 全身入镜";position:absolute;left:50%;transform:translateX(-50%);
+  top:-42px;white-space:nowrap;color:#fff;font-size:20px;background:rgba(0,0,0,.45);padding:6px 14px;border-radius:999px}
+.frameguide.ok{border-color:#7BE0A8;border-style:solid}
+.consent{display:flex;gap:12px;align-items:flex-start;font-size:20px;color:var(--ink2);line-height:1.55;cursor:pointer}
+.consent input{width:26px;height:26px;margin-top:2px;accent-color:#111}
+.liveright{flex:0 0 360px;display:flex;flex-direction:column;gap:14px}
+.liveright .card{padding:18px 20px}
+.lr-item{display:flex;align-items:center;gap:12px;padding:9px 0;cursor:pointer;border-bottom:1px solid var(--line2)}
+.lr-item:last-child{border-bottom:0}
+.lr-item img{width:46px;height:46px;object-fit:contain;background:#F4F0E7;border-radius:10px;flex:0 0 46px}
+.lr-item .nm{flex:1;font-size:22px;font-weight:600}
+.lr-item .mt{font-size:19px;color:var(--mut);display:block;font-weight:400}
+.lr-item.on .nm,.lr-item.on .mt{color:var(--blue)}
+.slider{display:flex;align-items:center;gap:12px;font-size:20px;color:var(--mut);padding:6px 0}
+.slider input{flex:1;accent-color:var(--blue)}
+</style>
+<script>window.LAN_HOST="10.1.2.150";</script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="t">AI 虚拟试衣大屏 · 可运行原型</div>
+  <div class="badge">1080 × 1920 竖屏 · 商场门店</div>
+  <div class="badge blue">视觉：卡其 × 蓝 · 北欧极简</div>
+  <div class="spacer"></div>
+  <button class="tb-btn" onclick="openPhone()">手机端预览</button>
+  <button class="tb-btn" onclick="toggleSide()">隐藏说明栏</button>
+  <button class="tb-btn acc" onclick="kioskMode()">大屏全屏演示</button>
+</div>
+
+<div class="layout" id="layout">
+  <div class="side" id="sideL">
+    <h3>本原型覆盖的四个考点</h3>
+    <div class="sitem"><b>1 · 操作门槛</b>3 步完成、无需注册、无键盘输入；每步只有"点卡片"一种动作，候选 ≤6 个，按钮高度 ≥120px。</div>
+    <div class="sitem"><b>2 · 等待与失败</b>分段进度 + 剩余秒数 + 可离场扫码；失败三级兜底（重试 / 静态搭配图 / 推到手机），<i>绝不空手而归</i>。</div>
+    <div class="sitem"><b>3 · 隐私保护</b>默认虚拟形象<i>不采集人脸</i>；真人试穿单独授权且本机处理；结果图 60 秒自动清除、无操作 90 秒清屏、取件码一次性 7 天。</div>
+    <div class="sitem"><b>4 · 转化路径</b>效果图 → 搭配与尺码 → 扫码带走 → 手机端看库存 / 预约试衣 / 加购 → 导购企微承接，全链路埋点可归因。</div>
+    <div class="sitem" style="border-bottom:0"><b>埋点</b>开始率 / 形象与商品选择分布 / 生成成功率与耗时 / 扫码率 / 手机端停留与加购 / 到店核销。</div>
+  </div>
+
+  <div class="bezel">
+    <div class="cam"></div>
+    <div class="stage" id="stage">
+      <div class="screen" id="screen">
+        <div class="pillbar" id="pillbar" style="transform:scaleX(0)"></div>
+
+        <!-- 0 待机：原来的封面（保留） -->
+        <section class="scr on" data-scr="attract">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo" style="cursor:pointer" onclick="openModel()"><i class="dot"></i>隐私模式 · 不采集人脸<span id="modelTag" style="margin-left:6px"></span></div>
+          </div>
+          <div class="attract-body">
+            <div class="attract-copy">
+              <div class="eyebrow">AI VIRTUAL FITTING</div>
+              <h1>先看上身<br>再决定买</h1>
+              <p class="lead">选一个形象、挑一件衣服，<br>30 秒看到大概的上身效果。</p>
+              <ul class="usp">
+                <li><b>不用排队</b>等试衣间</li>
+                <li><b>不用脱衣服</b>，选形象就行</li>
+                <li><b>效果图扫码带走</b>，边逛边看</li>
+              </ul>
+              <button class="btn primary xl" id="btnStart">开始试穿<span class="hint">无需注册 · 全程 3 步 · 平均 18 秒</span></button>
+              <div style="display:flex;gap:12px;margin-top:14px">
+                <button class="btn" style="flex:1;padding:22px 16px" onclick="openRealTry()">
+                  <span style="display:block;font-size:25px;font-weight:600">📷 实时试衣镜</span>
+                  <span style="display:block;font-size:18px;color:var(--mut);margin-top:4px">站在屏前，0 秒看效果</span>
+                </button>
+                <button class="btn" style="flex:1;padding:22px 16px" onclick="openPhotoConsent()">
+                  <span style="display:block;font-size:25px;font-weight:600">📸 用我的照片试穿</span>
+                  <span style="display:block;font-size:18px;color:var(--mut);margin-top:4px">拍一张，用你本人形象出图</span>
+                </button>
+              </div>
+              <div id="camStatus" style="margin-top:14px;font-size:19px;color:var(--mut);display:flex;align-items:center;gap:8px">
+                <i class="dot"></i>正在检测摄像头…
+              </div>
+              <div class="fineprint">默认使用虚拟形象，<b>不采集人脸、不需要手机号</b> · <a onclick="openPrivacy()">隐私说明</a></div>
+            </div>
+            <div class="attract-art" id="attractArt"></div>
+          </div>
+          <div class="kioskfoot"><span>生成失败自动兜底</span><span>数据 60 秒自动清除</span><span>支持门店导购接管</span></div>
+        </section>
+
+        <!-- 1 选形象 -->
+        <section class="scr" data-scr="avatar">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo"><i class="dot"></i>隐私模式</div>
+          </div>
+          <div class="hd">
+            <button class="btn ghost sm" data-back>← 返回</button>
+            <div class="crumb">
+              <span class="step on">1</span><span class="line"></span><span class="step">2</span>
+              <span class="steptext">第 1 步 / 共 2 步 · 选择形象</span>
+            </div>
+            <div class="timer">无操作 <b id="idleNum">90</b> 秒后自动清屏</div>
+          </div>
+          <h2 class="h1">选一个和你接近的身形</h2>
+          <p class="sub">身高体型越接近，看版型越准。这里只是虚拟形象，<b>不使用你的照片、不做身份识别</b>。</p>
+          <div class="grid avatars" id="avatarGrid"></div>
+          <div class="glass" style="margin:0 60px 18px;border-radius:20px;padding:18px 22px;display:flex;align-items:center;gap:16px">
+            <div style="font-size:22px;font-weight:600">AI 帮我挑</div>
+            <input class="inp" id="inH" type="number" value="168" placeholder="身高 cm">
+            <input class="inp" id="inW" type="number" value="58" placeholder="体重 kg">
+            <span style="font-size:19px;color:var(--mut)">按身高体重 + 本店现货，帮你挑 3 套</span>
+            <button class="btn primary sm" style="margin-left:auto" onclick="go('rec')">看推荐</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;padding:26px 60px 0;margin-bottom:168px;position:relative;z-index:3">
+            <button class="btn ghost" onclick="openRealTry()">真人试穿（需现场授权）</button>
+            <span style="font-size:20px;color:var(--mut);line-height:1.65">真人试穿会读取一次摄像头画面，仅在本机生成形象，<br>不上传、不留存，生成后立即删除。</span>
+          </div>
+          <div class="bottombar">
+            <div class="sel-list" id="avSummary">已选：Aya · 168cm · 运动型</div>
+            <div class="est">下一步<b>选服装</b></div>
+            <button class="btn primary" id="btnToOutfit">下一步 · 选服装</button>
+          </div>
+        </section>
+
+        <!-- 2 选服装 -->
+        <section class="scr" data-scr="rec">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo"><i class="dot"></i>现货优先</div>
+          </div>
+          <div class="hd">
+            <button class="btn ghost sm" data-back>← 返回</button>
+            <div class="crumb"><span class="step on">✦</span><span class="steptext">AI 推荐 · 按你的身形和门店现货挑的</span></div>
+          </div>
+          <h2 class="h1 sm">这 3 套最适合你</h2>
+          <p class="sub" id="recWhy">按身高体重估算…</p>
+          <div class="grid items" id="recGrid" style="grid-template-columns:repeat(3,1fr);padding-bottom:70px"></div>
+        </section>
+
+        <section class="scr" data-scr="outfit">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo"><i class="dot"></i>隐私模式</div>
+          </div>
+          <div class="hd">
+            <button class="btn ghost sm" data-back>← 返回</button>
+            <div class="crumb">
+              <span class="step done">✓</span><span class="line"></span><span class="step on">2</span>
+              <span class="steptext">第 2 步 / 共 2 步 · 选择服装</span>
+            </div>
+            <div class="timer">无操作 <b id="idleNum2">90</b> 秒后自动清屏</div>
+          </div>
+          <h2 class="h1 sm">这次想试哪件？</h2>
+          <p class="sub" style="margin-bottom:18px">正在试穿：<b id="curAvatarName">Aya · 168cm · 运动型</b>　<span style="color:var(--ink)">每次只试一件，选好就能生成</span></p>
+          <div class="tabs" id="tabs"></div>
+          <div class="grid items" id="itemGrid"></div>
+          <div class="bottombar">
+            <div class="sel-list" id="selList"></div>
+            <div class="est">预计生成时长<b id="estTime">18 秒</b></div>
+            <button class="btn primary" id="btnGen" disabled>请先选择衣服</button>
+          </div>
+        </section>
+
+        <!-- 3 生成中 -->
+        <section class="scr" data-scr="gen">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo"><i class="dot"></i>本地加密通道</div>
+          </div>
+          <h2 class="h1 sm" style="margin-bottom:6px">正在生成你的试穿效果</h2>
+          <p class="sub">请稍等十几秒。不想等？<b>现在就能扫码，效果图直接发到手机上。</b></p>
+          <div class="genwrap">
+            <div class="genleft">
+              <div class="ringbox">
+                <svg viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="#E4DED1" stroke-width="4"/>
+                  <circle id="ringFg" cx="60" cy="60" r="52" fill="none" stroke="#2E4F7C" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                </svg>
+                <div class="pct"><b id="pctNum">0%</b><span id="etaText">预计还需 18 秒</span></div>
+              </div>
+              <ul class="gensteps" id="genSteps">
+                <li><i class="bl"></i>读取身形与版型参数</li>
+                <li><i class="bl"></i>服装贴合与褶皱计算</li>
+                <li><i class="bl"></i>面料质感和光影渲染</li>
+                <li><i class="bl"></i>生成效果图并排队加密</li>
+              </ul>
+              <button class="btn ghost sm" style="margin-top:24px" onclick="cancelGen()">取消，重新选择</button>
+            </div>
+            <div class="genright">
+              <div class="qrcard">
+                <h4>不想在这儿等？</h4>
+                <p>扫码把结果带到手机<br>边逛边看，不用站在这儿</p>
+                <div class="qrbox" id="qrGen"></div>
+                <div class="codepill" id="codeGen">------</div>
+                <p style="margin:14px 0 0;font-size:18px">取件码 7 天有效 · 一次性</p>
+              </div>
+              <div class="fallback-note">生成如果失败，<b>不会让你白站一次</b>：系统会自动重试，仍不成功就立刻给你一张静态搭配图，或直接发到手机。</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6.5 用我的照片试穿 -->
+        <section class="scr" data-scr="photo">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo"><i class="dot"></i>照片仅本机使用 · 生成后立即删除</div>
+          </div>
+          <div class="hd">
+            <button class="btn ghost sm" onclick="PHOTO.stop();go('attract')">← 退出</button>
+            <div class="crumb"><span class="step on">●</span><span class="steptext">用我的照片试穿 · 先拍一张站姿照</span></div>
+            <div class="timer">不拍也能用虚拟形象</div>
+          </div>
+          <div class="livewrap">
+            <div class="livebox">
+              <video id="photoVideo" playsinline muted></video>
+              <canvas id="photoCanvas"></canvas>
+              <div class="frameguide" id="photoGuide"></div>
+              <div class="tagline">● 实时取景</div>
+              <div class="fps" id="photoHint">正在识别…</div>
+              <div class="hintbar">
+                <span>退后一步，让<b>头顶到脚</b>都在虚线框里</span>
+                <span>光线亮一点，别背对窗户</span>
+              </div>
+              <div class="err" id="photoErr">
+                <div style="font-size:56px">📷</div>
+                <div style="font-size:30px;font-weight:600">打不开摄像头</div>
+                <div id="photoErrMsg" style="font-size:22px;color:#B9B2A6;line-height:1.7;max-width:560px">
+                  可能是没有授权或没有摄像头。<br>你仍然可以用虚拟形象完成整套试穿。
+                </div>
+                <div style="display:flex;gap:14px;margin-top:10px">
+                  <button class="btn sm" onclick="PHOTO.start()">重试</button>
+                  <button class="btn primary sm" onclick="go('avatar')">改用虚拟形象</button>
+                </div>
+              </div>
+            </div>
+            <div class="liveright">
+              <div class="card">
+                <h4>拍一张，用你本人试穿</h4>
+                <div style="font-size:21px;color:var(--ink2);line-height:1.7">
+                  站到屏前，让全身入镜，点下面的按钮拍一张。这张照片会成为 AI 换装的人像输入，生成"你穿这件"的效果图。
+                </div>
+                <div style="margin-top:14px" id="photoConsentBox">
+                  <label class="consent"><input type="checkbox" id="photoConsent" checked>
+                    <span>我同意将这张照片用于<b>本次</b> AI 试穿生成；生成结束后立即删除，不用于模型训练。</span></label>
+                </div>
+              </div>
+              <button class="btn primary" style="padding:30px;font-size:32px" onclick="PHOTO.capture()">拍摄并开始试穿</button>
+              <button class="btn ghost" onclick="PHOTO.countdown()">3 秒倒计时拍摄</button>
+              <div class="fallback-note" style="margin:0" id="photoPrivacyNote">
+                照片<b>默认不出这块屏、不上传</b>：只用本地合成预览；如果你在设置里接了云端换装模型，生成时会把照片发到模型服务，仅用于本次生成并立即删除。
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4 结果 -->
+        <section class="scr" data-scr="result">
+          <div class="rfull">
+            <div class="rbg" id="resFig"></div>
+            <div class="rveil"></div>
+
+            <div class="rtop">
+              <div class="glass rbtn" onclick="backToOutfit()">←</div>
+              <div class="rtitle">试穿效果</div>
+              <div class="glass rseg">
+                <button class="on" data-view="fit">上身效果</button>
+                <button data-view="flat">搭配平铺</button>
+              </div>
+            </div>
+            <div class="glass rbadge" id="resBadge">AI 生成效果</div>
+            <div class="spin-hint">↔ 点箭头或左右拖动：转一圈看全身 · 转满一圈切下一套</div>
+            <div class="glass rspinbtn l" onclick="spinBy(-1)">‹</div>
+            <div class="glass rspinbtn r" onclick="spinBy(1)">›</div>
+
+            <div class="glass rpin" id="resItems"></div>
+
+            <div class="rside">
+              <div class="glass rsidebtn" onclick="backToOutfit()"><em>↻</em>换一件</div>
+              <div class="glass rsidebtn" onclick="callStaff()"><em>☎</em>叫导购</div>
+              <div class="glass rsidebtn" onclick="resetAll('已结束本次试穿，画面已清除')"><em>✕</em>清除</div>
+            </div>
+
+            <div class="glass rqr">
+              <div class="qrbox" id="qrRes"></div>
+              <div class="code">取件码 <b id="codeRes">------</b></div>
+              <div class="tip">手机扫码继续逛 · 7 天有效</div>
+            </div>
+
+            <div class="glass rdock">
+              <div class="rmeta"><b id="resTotal">¥0</b><span id="sizeHead">建议穿着 M 码</span><span>·</span><span id="sizeBody">本店现货</span></div>
+              <div class="rpair" id="resPair"></div>
+              <div class="rrail" id="resRail"></div>
+              <button class="rcta" onclick="openPhone()">扫码带走这张效果图</button>
+              <div class="rfine">取件码 <b id="codeRes2">------</b> · 7 天有效 · 画面 <b id="clearNum">60</b> 秒后自动清除
+                <i class="mini" id="clearRing"></i>
+                <a style="margin-left:14px;color:var(--ink);cursor:pointer;text-decoration:underline" onclick="openPrivacy()">这次用了我的什么数据？</a>
+              </div>
+            </div>
+
+            <div class="rflat" id="resFlat"></div>
+          </div>
+        </section>
+
+        <!-- 5 失败 -->
+        <section class="scr" data-scr="fail">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo" style="background:var(--rustSoft);color:var(--rust)"><i class="dot" style="background:var(--rust);opacity:.8"></i>生成异常</div>
+          </div>
+          <div class="failwrap">
+            <div class="failcard">
+              <div class="failicon">!</div>
+              <h2>这次没生成出来</h2>
+              <p class="why">不是你的操作问题：渲染服务和你的搭配都没问题，是<b>网络波动导致出图失败</b>。你的选择已经帮你留着，不用重新选一遍。</p>
+              <div class="log" id="failLog">错误码 E-NET-07 · 已自动重试 1 次 · 耗时 12.4 秒</div>
+              <div class="fallbacks">
+                <div class="fb primary" onclick="retryGen()">
+                  <div class="idx">1</div>
+                  <div class="tx"><b>重新生成一次（推荐）</b><span>大约 18 秒，这次走备用渲染通道</span></div>
+                  <div class="go">→</div>
+                </div>
+                <div class="fb" onclick="staticFallback()">
+                  <div class="idx">2</div>
+                  <div class="tx"><b>先看静态搭配图</b><span>不用等，立刻看到这套衣服的搭配效果</span></div>
+                  <div class="go">→</div>
+                </div>
+                <div class="fb" onclick="qrFallback()">
+                  <div class="idx">3</div>
+                  <div class="tx"><b>扫码 / 留手机号，稍后发到手机</b><span>你先去逛，出图后通知你</span></div>
+                  <div class="go">→</div>
+                </div>
+              </div>
+              <p style="font-size:19px;color:var(--mut);margin:24px 0 0;line-height:1.65">无论哪种方式，都不会记录能识别你身份的信息；也可以直接 <a style="color:var(--blue);cursor:pointer" onclick="resetAll('已清除，欢迎再来')">结束本次试穿</a>。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6 真人试穿 · 摄像头 AR 镜 -->
+        <section class="scr" data-scr="live">
+          <div class="kiosktop">
+            <div class="brand"><i class="logo"></i>MUYE 沐野</div>
+            <div class="store">万象城 3F · 品牌体验店</div>
+            <div class="sysinfo"><i class="dot"></i>画面仅本机处理 · 不上传</div>
+          </div>
+          <div class="hd">
+            <button class="btn ghost sm" data-back onclick="LIVE.stop()">← 退出试穿</button>
+            <div class="crumb"><span class="step on">●</span><span class="steptext">真人试穿 · 实时 AR 试衣镜（0 秒出效果）</span></div>
+            <div class="timer">关闭摄像头即释放，不保存任何画面</div>
+          </div>
+          <div class="livewrap">
+            <div class="livebox">
+              <video id="liveVideo" playsinline muted></video>
+              <canvas id="liveCanvas"></canvas>
+              <div class="tagline">● 实时试穿预览</div>
+              <div class="fps" id="liveFps">姿态追踪：加载中…</div>
+              <div class="hintbar">
+                <span>站到画面中间，正对屏幕，效果最好</span>
+                <span><kbd>拖动</kbd>移动衣服</span>
+                <span><kbd>滚轮</kbd>缩放</span>
+                <span style="color:#9CC7FF">不满意？右边点「生成高清效果图」，走云端渲染</span>
+              </div>
+              <div class="err" id="liveErr">
+                <div style="font-size:56px">📷</div>
+                <div style="font-size:30px;font-weight:600">打不开摄像头</div>
+                <div id="liveErrMsg" style="font-size:22px;color:#B9B2A6;line-height:1.7;max-width:560px">
+                  可能是浏览器没有授权、没有摄像头，或页面不是通过 localhost 打开的。<br>你仍然可以用左边的虚拟形象完成整套流程。
+                </div>
+                <div style="display:flex;gap:14px;margin-top:10px">
+                  <button class="btn sm" onclick="LIVE.start()">重试</button>
+                  <button class="btn primary sm" onclick="go('avatar')">改用虚拟形象</button>
+                </div>
+              </div>
+            </div>
+            <div class="liveright">
+              <div class="card">
+                <h4>在镜子里直接换衣服</h4>
+                <div id="liveItems"></div>
+              </div>
+              <div class="card">
+                <h4>微调位置</h4>
+                <div class="slider">大小<input type="range" id="ltScale" min="70" max="150" value="100"></div>
+                <div class="slider">上下<input type="range" id="ltY" min="-60" max="60" value="0"></div>
+                <div class="slider">左右<input type="range" id="ltX" min="-60" max="60" value="0"></div>
+                <button class="btn ghost sm" style="width:100%;margin-top:10px" onclick="LIVE.resetFit()">重置位置</button>
+              </div>
+              <button class="btn primary" style="padding:26px" onclick="LIVE.toRender()">生成高清效果图（约 18 秒）</button>
+              <div class="fallback-note" style="margin:0">实时镜是<b>本地实时合成</b>，用于快速看版型与颜色；「高清效果图」会走云端换装模型（生产环境可用 IDM-VTON / CatVTON 类模型），失败时可回落到实时预览截图。</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 隐私说明 -->
+        <div class="modal" id="mPrivacy">
+          <div class="box">
+            <h3>这块屏幕会用到你的什么数据？</h3>
+            <p class="lead">默认情况下，我们<b>不采集你的任何生物特征</b>，试穿用的是你选的虚拟形象。</p>
+            <ul class="dl">
+              <li><b>默认虚拟形象：</b>你只选择身高体型档位，系统不拍照、不认识你是谁，大屏上不留存任何个人信息。</li>
+              <li><b>真人试穿（可选）：</b>只有你主动点开并勾选授权后才会开启摄像头，画面只用于当场生成形象，<b>在本机完成处理、不上传、不入库、不用于模型训练</b>，生成结束立即丢弃原始帧。</li>
+              <li><b>结果图保存：</b>效果图在屏幕上只停留 <b>60 秒</b>，倒计时结束自动清除回到待机页；你也可以随时点"立即清除"。</li>
+              <li><b>带走方式：</b>只有扫码后结果才会存到你自己手机里；取件码 <b>7 天有效、一次性</b>，不填手机号也能用；不扫码就什么都不留。</li>
+              <li><b>无操作清屏：</b>连续 90 秒没有操作，屏幕自动清屏回到首页，避免你的选择被后面的人看到。</li>
+              <li><b>删除权：</b>手机端页面底部提供"删除我的试穿数据"，一键删除，立即生效。</li>
+            </ul>
+            <div class="acts"><button class="btn primary" onclick="closeModal('mPrivacy')">我知道了</button></div>
+          </div>
+        </div>
+
+        <!-- 真人试穿授权 -->
+        <div class="modal" id="mReal">
+          <div class="box">
+            <h3>开启真人试穿？</h3>
+            <p class="lead">会让效果更像你，但需要你同意下面这件事。不同意也没关系，虚拟形象同样能看版型。</p>
+            <ul class="dl">
+              <li>摄像头只在<b>生成形象时开启一次</b>（约 3 秒），完成后立即关闭。</li>
+              <li>画面<b>只在本机处理</b>，不上传、不保存、不用于训练；原始帧生成后立刻删除。</li>
+              <li>生成的形象只属于这一次试穿，<b>60 秒后随大屏画面一起清除</b>。</li>
+              <li>随时可以点屏幕上的"关闭摄像头"中止，也可以直接选虚拟形象。</li>
+            </ul>
+            <div class="acts">
+              <button class="btn ghost" onclick="closeModal('mReal')">还是用虚拟形象</button>
+              <button class="btn primary" onclick="agreeReal()">同意并开启摄像头</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 换装模型设置 -->
+        <div class="modal" id="mModel">
+          <div class="box" style="max-width:780px">
+            <h3>换装模型设置</h3>
+            <p class="lead">默认"本地预览"用已生成的真人穿着照，保证现场不空手；填上端点或 key 就是真的换装模型，<b>按所选体型生成</b>。</p>
+            <ul class="dl" style="margin-bottom:18px">
+              <li><b>自建服务：</b>把 ComfyUI / CatVTON / IDM-VTON 包一层 HTTP：POST 收 <code>human_image / garment_image / garment_description / body / seed</code>，返回 <code>image_base64</code> 或 <code>image_url</code>。交付目录里带了一个 <code>src/mock-model-server.js</code> 可直接联调。</li>
+              <li><b>fal.ai：</b>填 API Key，模型默认 <code>fal-ai/cat-vton</code>，走托管 GPU、按次计费。</li>
+              <li>未配置或调用失败会自动回落本地预览，并保留"重试 / 静态搭配 / 推到手机"三条兜底。</li>
+            </ul>
+            <div style="font-size:22px;color:var(--ink2);display:flex;flex-direction:column;gap:14px">
+              <label>模型来源
+                <select id="mmProvider" style="font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);width:100%">
+                  <option value="mock">本地预览（未接入模型）</option>
+                  <option value="custom">自建换装服务（HTTP 端点）</option>
+                  <option value="fal">fal.ai 托管模型</option>
+                </select></label>
+              <label>服务端点 / Endpoint
+                <input id="mmEndpoint" placeholder="http://localhost:5199/generate" style="font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);width:100%"></label>
+              <label>API Key（只存在本机浏览器，不会提交到任何服务器）
+                <input id="mmKey" placeholder="fal.ai / 你的服务密钥" style="font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);width:100%"></label>
+              <label>模型名（fal）
+                <input id="mmModel" placeholder="fal-ai/cat-vton" style="font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);width:100%"></label>
+              <div id="mmState" style="font-size:20px;color:var(--mut)"></div>
+            </div>
+            <div class="acts" style="margin-top:22px">
+              <button class="btn ghost" onclick="closeModal('mModel')">取消</button>
+              <button class="btn" onclick="testModel()">测试连接</button>
+              <button class="btn primary" onclick="saveModel()">保存设置</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 手机端预览 -->
+        <div class="modal" id="mPhone">
+          <div class="box" style="max-width:940px">
+            <h3>手机端：把效果图变成一次决策</h3>
+            <p class="lead">大屏负责"看到"，手机负责"看完并买下"。扫码后打开的就是下面这一页。</p>
+            <div class="phonewrap" style="gap:26px">
+              <div class="phone" style="width:360px;flex:0 0 360px;padding:12px">
+                <div class="pv" id="phoneMock" style="height:840px"></div>
+              </div>
+              <div class="txt" style="min-width:0;overflow:hidden">
+                <ul class="dl" style="margin-bottom:14px">
+                  <li><b>效果图 + 取件码</b>：7 天有效，随时回来接着看。</li>
+                  <li><b>尺码与库存</b>：按你的身形给尺码建议，并显示本店现货数量。</li>
+                  <li><b>三种收口</b>：加入购物车、预约到店试衣、加导购企业微信。</li>
+                  <li><b>隐私可控</b>：底部一键删除本次试穿数据。</li>
+                </ul>
+                <div class="acts" style="justify-content:flex-start;flex-wrap:wrap;margin-top:18px">
+                  <button class="btn ghost sm" onclick="closeModal('mPhone')">关闭</button>
+                  <a class="btn primary sm" id="phoneOpenLink" href="#" target="_blank" rel="noopener"
+                     style="text-decoration:none;display:inline-flex;align-items:center">打开手机端商城 ↗</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side" id="sideR">
+    <h3>演示控制（挑重点讲）</h3>
+    <div class="sitem" style="border-top:0">
+      <b>推荐演示顺序</b>
+      ① 开始试穿 → ② 切换形象看版型差异 → ③ 选一上一下 → ④ 生成中点右侧二维码讲"可离场" → ⑤ 结果页讲扫码转化 → ⑥ 演示失败兜底 → ⑦ 最后讲隐私。
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;padding-top:12px;border-top:1px solid #E7E2D6">
+      <button class="tb-btn" onclick="demoFail()">模拟：生成失败</button>
+      <button class="tb-btn" onclick="demoSlow()">模拟：网络很慢（30s）</button>
+      <button class="tb-btn" onclick="demoFast()">模拟：瞬间生成成功</button>
+      <button class="tb-btn" onclick="demoIdle()">模拟：长时间无操作清屏</button>
+      <button class="tb-btn" onclick="demoClear()">模拟：结果图 60 秒自动清除</button>
+      <button class="tb-btn" onclick="demoReal()">模拟：真人试穿授权被拒</button>
+      <button class="tb-btn" onclick="resetAll('已重置到待机页')">重置到待机页</button>
+    </div>
+    <div class="sitem" style="border-bottom:0;margin-top:12px">
+      <b>说明</b>二维码是<b>真实可扫</b>的，编码了取件码与所选商品；真实投放时替换为公司短链 + 一次性 token。
+    </div>
+  </div>
+</div>
+
+<script>var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this.parsedData=[];for(var b=[],d=0,e=this.data.length;e>d;d++){var f=this.data.charCodeAt(d);f>65536?(b[0]=240|(1835008&f)>>>18,b[1]=128|(258048&f)>>>12,b[2]=128|(4032&f)>>>6,b[3]=128|63&f):f>2048?(b[0]=224|(61440&f)>>>12,b[1]=128|(4032&f)>>>6,b[2]=128|63&f):f>128?(b[0]=192|(1984&f)>>>6,b[1]=128|63&f):b[0]=f,this.parsedData=this.parsedData.concat(b)}this.parsedData.length!=this.data.length&&(this.parsedData.unshift(191),this.parsedData.unshift(187),this.parsedData.unshift(239))}function b(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}function i(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);for(var c=0;c<a.length&&0==a[c];)c++;this.num=new Array(a.length-c+b);for(var d=0;d<a.length-c;d++)this.num[d]=a[d+c]}function j(a,b){this.totalCount=a,this.dataCount=b}function k(){this.buffer=[],this.length=0}function m(){return"undefined"!=typeof CanvasRenderingContext2D}function n(){var a=!1,b=navigator.userAgent;return/android/i.test(b)&&(a=!0,aMat=b.toString().match(/android ([0-9]\.[0-9])/i),aMat&&aMat[1]&&(a=parseFloat(aMat[1]))),a}function r(a,b){for(var c=1,e=s(a),f=0,g=l.length;g>=f;f++){var h=0;switch(b){case d.L:h=l[f][0];break;case d.M:h=l[f][1];break;case d.Q:h=l[f][2];break;case d.H:h=l[f][3]}if(h>=e)break;c++}if(c>l.length)throw new Error("Too long data");return c}function s(a){var b=encodeURI(a).toString().replace(/\%[0-9a-fA-F]{2}/g,"a");return b.length+(b.length!=a?3:0)}a.prototype={getLength:function(){return this.parsedData.length},write:function(a){for(var b=0,c=this.parsedData.length;c>b;b++)a.put(this.parsedData[b],8)}},b.prototype={addData:function(b){var c=new a(b);this.dataList.push(c),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,c){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++){this.modules[d]=new Array(this.moduleCount);for(var e=0;e<this.moduleCount;e++)this.modules[d][e]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,c),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=b.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,c)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=f*e,h=0;h<this.modules[f].length;h++){var i=h*e,j=this.modules[f][h];j&&(d.beginFill(0,100),d.moveTo(i,g),d.lineTo(i+e,g),d.lineTo(i+e,g+e),d.lineTo(i,g+e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2);for(var b=8;b<this.moduleCount-8;b++)null==this.modules[6][b]&&(this.modules[6][b]=0==b%2)},setupPositionAdjustPattern:function(){for(var a=f.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[d+g][e+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h?!0:!1}},setupTypeNumber:function(a){for(var b=f.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(1&d>>e);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(1&d>>e);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,g=0,h=this.moduleCount-1;h>0;h-=2)for(6==h&&h--;;){for(var i=0;2>i;i++)if(null==this.modules[d][h-i]){var j=!1;g<a.length&&(j=1==(1&a[g]>>>e));var k=f.getMask(b,d,h-i);k&&(j=!j),this.modules[d][h-i]=j,e--,-1==e&&(g++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},b.PAD0=236,b.PAD1=17,b.createData=function(a,c,d){for(var e=j.getRSBlocks(a,c),g=new k,h=0;h<d.length;h++){var i=d[h];g.put(i.mode,4),g.put(i.getLength(),f.getLengthInBits(i.mode,a)),i.write(g)}for(var l=0,h=0;h<e.length;h++)l+=e[h].dataCount;if(g.getLengthInBits()>8*l)throw new Error("code length overflow. ("+g.getLengthInBits()+">"+8*l+")");for(g.getLengthInBits()+4<=8*l&&g.put(0,4);0!=g.getLengthInBits()%8;)g.putBit(!1);for(;;){if(g.getLengthInBits()>=8*l)break;if(g.put(b.PAD0,8),g.getLengthInBits()>=8*l)break;g.put(b.PAD1,8)}return b.createBytes(g,e)},b.createBytes=function(a,b){for(var c=0,d=0,e=0,g=new Array(b.length),h=new Array(b.length),j=0;j<b.length;j++){var k=b[j].dataCount,l=b[j].totalCount-k;d=Math.max(d,k),e=Math.max(e,l),g[j]=new Array(k);for(var m=0;m<g[j].length;m++)g[j][m]=255&a.buffer[m+c];c+=k;var n=f.getErrorCorrectPolynomial(l),o=new i(g[j],n.getLength()-1),p=o.mod(n);h[j]=new Array(n.getLength()-1);for(var m=0;m<h[j].length;m++){var q=m+p.getLength()-h[j].length;h[j][m]=q>=0?p.get(q):0}}for(var r=0,m=0;m<b.length;m++)r+=b[m].totalCount;for(var s=new Array(r),t=0,m=0;d>m;m++)for(var j=0;j<b.length;j++)m<g[j].length&&(s[t++]=g[j][m]);for(var m=0;e>m;m++)for(var j=0;j<b.length;j++)m<h[j].length&&(s[t++]=h[j][m]);return s};for(var c={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},d={L:1,M:0,Q:3,H:2},e={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7},f={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;f.getBCHDigit(b)-f.getBCHDigit(f.G15)>=0;)b^=f.G15<<f.getBCHDigit(b)-f.getBCHDigit(f.G15);return(a<<10|b)^f.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;f.getBCHDigit(b)-f.getBCHDigit(f.G18)>=0;)b^=f.G18<<f.getBCHDigit(b)-f.getBCHDigit(f.G18);return a<<12|b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>>=1;return b},getPatternPosition:function(a){return f.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b,c){switch(a){case e.PATTERN000:return 0==(b+c)%2;case e.PATTERN001:return 0==b%2;case e.PATTERN010:return 0==c%3;case e.PATTERN011:return 0==(b+c)%3;case e.PATTERN100:return 0==(Math.floor(b/2)+Math.floor(c/3))%2;case e.PATTERN101:return 0==b*c%2+b*c%3;case e.PATTERN110:return 0==(b*c%2+b*c%3)%2;case e.PATTERN111:return 0==(b*c%3+(b+c)%2)%2;default:throw new Error("bad maskPattern:"+a)}},getErrorCorrectPolynomial:function(a){for(var b=new i([1],0),c=0;a>c;c++)b=b.multiply(new i([1,g.gexp(c)],0));return b},getLengthInBits:function(a,b){if(b>=1&&10>b)switch(a){case c.MODE_NUMBER:return 10;case c.MODE_ALPHA_NUM:return 9;case c.MODE_8BIT_BYTE:return 8;case c.MODE_KANJI:return 8;default:throw new Error("mode:"+a)}else if(27>b)switch(a){case c.MODE_NUMBER:return 12;case c.MODE_ALPHA_NUM:return 11;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 10;default:throw new Error("mode:"+a)}else{if(!(41>b))throw new Error("type:"+b);switch(a){case c.MODE_NUMBER:return 14;case c.MODE_ALPHA_NUM:return 13;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 12;default:throw new Error("mode:"+a)}}},getLostPoint:function(a){for(var b=a.getModuleCount(),c=0,d=0;b>d;d++)for(var e=0;b>e;e++){for(var f=0,g=a.isDark(d,e),h=-1;1>=h;h++)if(!(0>d+h||d+h>=b))for(var i=-1;1>=i;i++)0>e+i||e+i>=b||(0!=h||0!=i)&&g==a.isDark(d+h,e+i)&&f++;f>5&&(c+=3+f-5)}for(var d=0;b-1>d;d++)for(var e=0;b-1>e;e++){var j=0;a.isDark(d,e)&&j++,a.isDark(d+1,e)&&j++,a.isDark(d,e+1)&&j++,a.isDark(d+1,e+1)&&j++,(0==j||4==j)&&(c+=3)}for(var d=0;b>d;d++)for(var e=0;b-6>e;e++)a.isDark(d,e)&&!a.isDark(d,e+1)&&a.isDark(d,e+2)&&a.isDark(d,e+3)&&a.isDark(d,e+4)&&!a.isDark(d,e+5)&&a.isDark(d,e+6)&&(c+=40);for(var e=0;b>e;e++)for(var d=0;b-6>d;d++)a.isDark(d,e)&&!a.isDark(d+1,e)&&a.isDark(d+2,e)&&a.isDark(d+3,e)&&a.isDark(d+4,e)&&!a.isDark(d+5,e)&&a.isDark(d+6,e)&&(c+=40);for(var k=0,e=0;b>e;e++)for(var d=0;b>d;d++)a.isDark(d,e)&&k++;var l=Math.abs(100*k/b/b-50)/5;return c+=10*l}},g={glog:function(a){if(1>a)throw new Error("glog("+a+")");return g.LOG_TABLE[a]},gexp:function(a){for(;0>a;)a+=255;for(;a>=256;)a-=255;return g.EXP_TABLE[a]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)},h=0;8>h;h++)g.EXP_TABLE[h]=1<<h;for(var h=8;256>h;h++)g.EXP_TABLE[h]=g.EXP_TABLE[h-4]^g.EXP_TABLE[h-5]^g.EXP_TABLE[h-6]^g.EXP_TABLE[h-8];for(var h=0;255>h;h++)g.LOG_TABLE[g.EXP_TABLE[h]]=h;i.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),c=0;c<this.getLength();c++)for(var d=0;d<a.getLength();d++)b[c+d]^=g.gexp(g.glog(this.get(c))+g.glog(a.get(d)));return new i(b,0)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=g.glog(this.get(0))-g.glog(a.get(0)),c=new Array(this.getLength()),d=0;d<this.getLength();d++)c[d]=this.get(d);for(var d=0;d<a.getLength();d++)c[d]^=g.gexp(g.glog(a.get(d))+b);return new i(c,0).mod(a)}},j.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],j.getRSBlocks=function(a,b){var c=j.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],f=0;d>f;f++)for(var g=c[3*f+0],h=c[3*f+1],i=c[3*f+2],k=0;g>k;k++)e.push(new j(h,i));return e},j.getRsBlockTable=function(a,b){switch(b){case d.L:return j.RS_BLOCK_TABLE[4*(a-1)+0];case d.M:return j.RS_BLOCK_TABLE[4*(a-1)+1];case d.Q:return j.RS_BLOCK_TABLE[4*(a-1)+2];case d.H:return j.RS_BLOCK_TABLE[4*(a-1)+3];default:return void 0}},k.prototype={get:function(a){var b=Math.floor(a/8);return 1==(1&this.buffer[b]>>>7-a%8)},put:function(a,b){for(var c=0;b>c;c++)this.putBit(1==(1&a>>>b-c-1))},getLengthInBits:function(){return this.length},putBit:function(a){var b=Math.floor(this.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.length%8),this.length++}};var l=[[17,14,11,7],[32,26,20,14],[53,42,32,24],[78,62,46,34],[106,84,60,44],[134,106,74,58],[154,122,86,64],[192,152,108,84],[230,180,130,98],[271,213,151,119],[321,251,177,137],[367,287,203,155],[425,331,241,177],[458,362,258,194],[520,412,292,220],[586,450,322,250],[644,504,364,280],[718,560,394,310],[792,624,442,338],[858,666,482,382],[929,711,509,403],[1003,779,565,439],[1091,857,611,461],[1171,911,661,511],[1273,997,715,535],[1367,1059,751,593],[1465,1125,805,625],[1528,1190,868,658],[1628,1264,908,698],[1732,1370,982,742],[1840,1452,1030,790],[1952,1538,1112,842],[2068,1628,1168,898],[2188,1722,1228,958],[2303,1809,1283,983],[2431,1911,1351,1051],[2563,1989,1423,1093],[2699,2099,1499,1139],[2809,2213,1579,1219],[2953,2331,1663,1273]],o=function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){function g(a,b){var c=document.createElementNS("http://www.w3.org/2000/svg",a);for(var d in b)b.hasOwnProperty(d)&&c.setAttribute(d,b[d]);return c}var b=this._htOption,c=this._el,d=a.getModuleCount();Math.floor(b.width/d),Math.floor(b.height/d),this.clear();var h=g("svg",{viewBox:"0 0 "+String(d)+" "+String(d),width:"100%",height:"100%",fill:b.colorLight});h.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"),c.appendChild(h),h.appendChild(g("rect",{fill:b.colorDark,width:"1",height:"1",id:"template"}));for(var i=0;d>i;i++)for(var j=0;d>j;j++)if(a.isDark(i,j)){var k=g("use",{x:String(i),y:String(j)});k.setAttributeNS("http://www.w3.org/1999/xlink","href","#template"),h.appendChild(k)}},a.prototype.clear=function(){for(;this._el.hasChildNodes();)this._el.removeChild(this._el.lastChild)},a}(),p="svg"===document.documentElement.tagName.toLowerCase(),q=p?o:m()?function(){function a(){this._elImage.src=this._elCanvas.toDataURL("image/png"),this._elImage.style.display="block",this._elCanvas.style.display="none"}function d(a,b){var c=this;if(c._fFail=b,c._fSuccess=a,null===c._bSupportDataURI){var d=document.createElement("img"),e=function(){c._bSupportDataURI=!1,c._fFail&&_fFail.call(c)},f=function(){c._bSupportDataURI=!0,c._fSuccess&&c._fSuccess.call(c)};return d.onabort=e,d.onerror=e,d.onload=f,d.src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",void 0}c._bSupportDataURI===!0&&c._fSuccess?c._fSuccess.call(c):c._bSupportDataURI===!1&&c._fFail&&c._fFail.call(c)}if(this._android&&this._android<=2.1){var b=1/window.devicePixelRatio,c=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(a,d,e,f,g,h,i,j){if("nodeName"in a&&/img/i.test(a.nodeName))for(var l=arguments.length-1;l>=1;l--)arguments[l]=arguments[l]*b;else"undefined"==typeof j&&(arguments[1]*=b,arguments[2]*=b,arguments[3]*=b,arguments[4]*=b);c.apply(this,arguments)}}var e=function(a,b){this._bIsPainted=!1,this._android=n(),this._htOption=b,this._elCanvas=document.createElement("canvas"),this._elCanvas.width=b.width,this._elCanvas.height=b.height,a.appendChild(this._elCanvas),this._el=a,this._oContext=this._elCanvas.getContext("2d"),this._bIsPainted=!1,this._elImage=document.createElement("img"),this._elImage.style.display="none",this._el.appendChild(this._elImage),this._bSupportDataURI=null};return e.prototype.draw=function(a){var b=this._elImage,c=this._oContext,d=this._htOption,e=a.getModuleCount(),f=d.width/e,g=d.height/e,h=Math.round(f),i=Math.round(g);b.style.display="none",this.clear();for(var j=0;e>j;j++)for(var k=0;e>k;k++){var l=a.isDark(j,k),m=k*f,n=j*g;c.strokeStyle=l?d.colorDark:d.colorLight,c.lineWidth=1,c.fillStyle=l?d.colorDark:d.colorLight,c.fillRect(m,n,f,g),c.strokeRect(Math.floor(m)+.5,Math.floor(n)+.5,h,i),c.strokeRect(Math.ceil(m)-.5,Math.ceil(n)-.5,h,i)}this._bIsPainted=!0},e.prototype.makeImage=function(){this._bIsPainted&&d.call(this,a)},e.prototype.isPainted=function(){return this._bIsPainted},e.prototype.clear=function(){this._oContext.clearRect(0,0,this._elCanvas.width,this._elCanvas.height),this._bIsPainted=!1},e.prototype.round=function(a){return a?Math.floor(1e3*a)/1e3:a},e}():function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){for(var b=this._htOption,c=this._el,d=a.getModuleCount(),e=Math.floor(b.width/d),f=Math.floor(b.height/d),g=['<table style="border:0;border-collapse:collapse;">'],h=0;d>h;h++){g.push("<tr>");for(var i=0;d>i;i++)g.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:'+e+"px;height:"+f+"px;background-color:"+(a.isDark(h,i)?b.colorDark:b.colorLight)+';"></td>');g.push("</tr>")}g.push("</table>"),c.innerHTML=g.join("");var j=c.childNodes[0],k=(b.width-j.offsetWidth)/2,l=(b.height-j.offsetHeight)/2;k>0&&l>0&&(j.style.margin=l+"px "+k+"px")},a.prototype.clear=function(){this._el.innerHTML=""},a}();QRCode=function(a,b){if(this._htOption={width:256,height:256,typeNumber:4,colorDark:"#000000",colorLight:"#ffffff",correctLevel:d.H},"string"==typeof b&&(b={text:b}),b)for(var c in b)this._htOption[c]=b[c];"string"==typeof a&&(a=document.getElementById(a)),this._android=n(),this._el=a,this._oQRCode=null,this._oDrawing=new q(this._el,this._htOption),this._htOption.text&&this.makeCode(this._htOption.text)},QRCode.prototype.makeCode=function(a){this._oQRCode=new b(r(a,this._htOption.correctLevel),this._htOption.correctLevel),this._oQRCode.addData(a),this._oQRCode.make(),this._el.title=a,this._oDrawing.draw(this._oQRCode),this.makeImage()},QRCode.prototype.makeImage=function(){"function"==typeof this._oDrawing.makeImage&&(!this._android||this._android>=3)&&this._oDrawing.makeImage()},QRCode.prototype.clear=function(){this._oDrawing.clear()},QRCode.CorrectLevel=d}();</script>
+<script>/* =========================================================================
+   试穿渲染：真人模特 + 真实服装
+   每件商品都有一张"穿在身上"的实拍图（worn），所以上身效果是真的穿着，
+   而不是把挂拍图贴到人身上。尺寸/灯光/姿势统一，做成门店标准数字模特。
+   尺码建议按用户选择的身形单独计算。
+   ========================================================================= */
+
+const A = 'assets/';
+
+/* 身形：用于"选一个和你接近的身形"与尺码建议 */
+const BODIES = [
+  { id:'m1', name:'Sora', gender:'f', height:165, shape:'匀称', note:'165cm · 匀称', tip:'最常见身形', img:A+'process/models__m1.jpg' },
+  { id:'m2', name:'Mio',  gender:'f', height:158, shape:'娇小', note:'158cm · 娇小', tip:'看衣长是否偏长', img:A+'process/models__m2.jpg' },
+  { id:'m3', name:'Aya',  gender:'f', height:168, shape:'运动', note:'168cm · 运动型', tip:'肩背偏厚', img:A+'process/models__m3.jpg' },
+  { id:'m4', name:'Rin',  gender:'f', height:162, shape:'丰满', note:'162cm · 丰满', tip:'看版型包容性', img:A+'process/models__m4.jpg' },
+  { id:'m5', name:'Kai',  gender:'m', height:176, shape:'匀称', note:'176cm · 匀称', tip:'男装参考', img:A+'process/models__m5.jpg' },
+  { id:'m6', name:'Jun',  gender:'m', height:172, shape:'偏瘦', note:'172cm · 偏瘦', tip:'偏瘦身形', img:A+'process/models__m6.jpg' },
+];
+
+/* 在售货品：每件都有一张真人穿着照 */
+const ITEMS = [
+  { id:'w1', cat:'top', worn:A+'process/worn__w1.jpg', cut:A+'process/garments__g1.png', name:'燕麦羊毛开衫',  tone:'燕麦',   price:399,  stock:'本店 12 件', tag:'门店热卖', color:'#DCCFBA' },
+  { id:'w2', cat:'top', worn:A+'process/worn__w2.jpg', cut:A+'process/garments__g2.png', name:'真丝垂感衬衫',  tone:'月光白', price:599,  stock:'本店 6 件',  tag:'新品',     color:'#F1EEE6' },
+  { id:'w3', cat:'top', worn:A+'process/worn__w3.jpg', cut:A+'process/garments__g3.png', name:'重磅纯棉 T 恤', tone:'石墨黑', price:199,  stock:'本店 30 件', tag:'基础款',   color:'#3B3B3E' },
+  { id:'w7', cat:'bottom', worn:A+'process/worn__w7.jpg', cut:A+'process/garments__g8.png', name:'高腰阔腿长裤',  tone:'米色',   price:529,  stock:'本店 11 件', tag:'垂感',     color:'#D9CDB8' },
+  { id:'w5', cat:'dress', worn:A+'process/worn__w5.jpg', cut:A+'process/garments__g5.png', name:'雾霾蓝衬衫裙',  tone:'雾霾蓝', price:699,  stock:'本店 5 件',  tag:'新品',     color:'#8FA3B4' },
+  { id:'w4', cat:'outer', worn:A+'process/worn__w4.jpg', cut:A+'process/garments__g4.png', name:'卡其长款风衣',  tone:'卡其',   price:1299, stock:'本店 4 件',  tag:'经典',     color:'#BE9F73',
+    frames:[A+'process/worn__w4.jpg', A+'process/worn__w4_a45.jpg', A+'process/worn__w4_side.jpg', A+'process/worn__w4_back.jpg'] },
+  { id:'w6', cat:'outer', worn:A+'process/worn__w6.jpg', cut:A+'process/garments__g6.png', name:'炭灰西装外套',  tone:'炭灰',   price:899,  stock:'本店 6 件',  tag:'通勤',     color:'#585860' },
+];
+
+const byId = id => ITEMS.find(i => i.id === id);
+const bodyById = id => BODIES.find(b => b.id === id);
+/* 男装：同样这几件的中性款，用男模特的真人穿着照（连衣裙只做女装） */
+const MALE_WORN = {
+  w1: A+'process/worn__male_m1.jpg',
+  w2: A+'process/worn__male_m2.jpg',
+  w3: A+'process/worn__male_m3.jpg',
+  w7: A+'process/worn__male_m7.jpg',
+  w4: A+'process/worn__male_m4.jpg',
+  w6: A+'process/worn__male_m6.jpg',
+};
+const isMale = b => !!b && b.gender === 'm';
+/* 按当前形象取这件衣服的人像：男装形象给男模特照片，女装形象给女模特照片 */
+function wornFor(item, b) {
+  if (isMale(b) && MALE_WORN[item.id]) return MALE_WORN[item.id];
+  return item.worn;
+}
+/* 每件衣服的 4 个角度帧（正面 / 45° / 侧面 / 背面），男女装各自一套 */
+function framesFor(item, b) {
+  const male = isMale(b) && MALE_WORN[item.id];
+  const key = male ? ('male_m' + item.id.slice(1)) : item.id;
+  const f = s => `${A}process/worn__${key}${s}.jpg`;
+  return [f(''), f('_a45'), f('_side'), f('_back')];
+}
+/* 男装形象下不展示连衣裙 */
+function availableFor(b) {
+  return isMale(b) ? ITEMS.filter(i => i.cat !== 'dress') : ITEMS;
+}
+
+/* 试穿结果：直接呈现真人穿着照 */
+function figureSVG(opt) {
+  const b = typeof opt.body === 'string' ? bodyById(opt.body) : opt.body;
+  const items = (opt.items || []).map(i => (typeof i === 'string' ? byId(i) : i)).filter(Boolean);
+  const src = items[0] ? wornFor(items[0], b) : (b ? b.img : BODIES[0].img);
+  return `<div class="tryon ${opt.className || ''}"><img class="base" src="${src}" alt=""></div>`;
+}
+
+/* 商品卡：展示"穿在身上"的样子 */
+function thumbSVG(item, b) {
+  return `<div class="gthumb"><img src="${wornFor(item, b)}" alt=""></div>`;
+}
+
+/* 平铺搭配（静态兜底方案） */
+function flatLay(items) {
+  return `<div class="flatlay">${items.map(i => `<div class="fl-item">
+    <div class="fl-img"><img src="${i.worn}" alt=""></div>
+    <div class="fl-meta"><b>${i.name}</b><span>${i.tone} · ¥${i.price}</span></div></div>`).join('')}</div>`;
+}
+
+/* 推荐搭配（原型用规则表；生产环境可用销量/点击共现来算） */
+const PAIR = {
+  w1:{ p:'w7', why:'上装搭米色阔腿裤，同色系最不容易出错' },
+  w2:{ p:'w7', why:'真丝衬衫配阔腿裤，通勤和周末都能穿' },
+  w3:{ p:'w7', why:'基础黑T加阔腿裤，最简单的显腿长组合' },
+  w6:{ p:'w7', why:'西装外套配阔腿裤，一套能直接上班' },
+  w7:{ p:'w2', why:'阔腿裤配真丝衬衫，比 T 恤更抬气质' },
+  w4:{ p:'w7', why:'风衣 + 阔腿裤是这一季最稳的通勤组合' },
+  w5:{ p:'w4', why:'衬衫裙外搭长风衣，秋天正好' },
+};
+function pairOf(id) { const r = PAIR[id]; return r ? { item: byId(r.p), why: r.why } : null; }
+
+window.MUYE = { BODIES, ITEMS, PAIR, pairOf, byId, bodyById, figureSVG, thumbSVG, flatLay,
+  MALE_WORN, wornFor, framesFor, availableFor, isMale };
+
+
+
+</script>
+<script>/* =========================================================================
+   换装模型接入层（可插拔）
+   - custom : 你自己的换装服务（ComfyUI / CatVTON / IDM-VTON 包一层 HTTP 即可）
+   - fal    : fal.ai 托管的 IDM-VTON / CatVTON（填 key 即可用）
+   - mock   : 不配任何东西时的本地回落（用已生成好的真人穿着照，保证演示不空手）
+
+   自定义端点协议（POST，JSON）：
+     请求 { human_image, garment_image, garment_description, body:{height,shape,size}, seed }
+     响应 { image_base64: "data:image/...;base64,xxx" }  或  { image_url: "https://..." }
+   ========================================================================= */
+const TRYON = (() => {
+  const KEY = 'muye_tryon_cfg';
+  let cfg = { provider: 'mock', endpoint: '', key: '', model: 'fal-ai/cat-vton', timeout: 90000, bodyScan: true };
+  try { Object.assign(cfg, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
+  const listeners = [];
+
+  const src2dataURL = src => new Promise((res, rej) => {
+    if (!src) return rej(new Error('缺少图片'));
+    if (src.startsWith('data:')) return res(src);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext('2d').drawImage(img, 0, 0);
+      res(c.toDataURL('image/jpeg', 0.92));
+    };
+    img.onerror = () => rej(new Error('图片读取失败 ' + src));
+    img.src = src;
+  });
+
+  function withTimeout(p, ms) {
+    return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), ms))]);
+  }
+
+  /* 核心：传入人像 + 服装 + 体型参数，拿回照片级试穿图 */
+  async function generate(opt) {
+    const t0 = Date.now();
+    const req = {
+      human_image: opt.human,
+      garment_image: opt.garment,
+      garment_description: opt.desc || '',
+      body: opt.body || {},
+      seed: Math.floor(Math.random() * 1e6),
+    };
+    const payload = () => ({
+      ...req,
+      human_image: opt.human, garment_image: opt.garment,
+    });
+    emit({ phase: 'start', provider: cfg.provider });
+    try {
+      let out;
+      if (cfg.provider === 'custom' && cfg.endpoint) {
+        emit({ phase: 'upload' });
+        const data = await withTimeout(fetch(cfg.endpoint, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(await materialize()),
+        }).then(async r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 160));
+          return r.json();
+        }), cfg.timeout);
+        out = out2img(data);
+      } else if (cfg.provider === 'fal') {
+        const body = await materialize();
+        const data = await withTimeout(fetch('https://fal.run/' + (cfg.model || 'fal-ai/cat-vton'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Key ' + cfg.key },
+          body: JSON.stringify({
+            human_image_url: body.human_image,
+            garment_image_url: body.garment_image,
+            garment_description: body.garment_description,
+          }),
+        }).then(async r => {
+          if (!r.ok) throw new Error('fal ' + r.status + ' ' + (await r.text()).slice(0, 200));
+          return r.json();
+        }), cfg.timeout);
+        out = (data.image && data.image.url) || data.image_url || (data.images && data.images[0] && data.images[0].url);
+        if (!out) throw new Error('fal 返回里没有图片: ' + JSON.stringify(data).slice(0, 160));
+      } else {
+        /* mock：本地回落，保证演示不空手 */
+        emit({ phase: 'render' });
+        await new Promise(r => setTimeout(r, 1200));
+        out = opt.fallback;
+        if (!out) throw new Error('没有可用的回落图');
+      }
+      emit({ phase: 'done', ms: Date.now() - t0, provider: cfg.provider });
+      return { ok: true, image: out, ms: Date.now() - t0, provider: cfg.provider };
+    } catch (e) {
+      emit({ phase: 'error', error: e.message });
+      return { ok: false, error: e.message, ms: Date.now() - t0, provider: cfg.provider, fallback: opt.fallback };
+    }
+    async function materialize() {
+      const [human, garment] = await Promise.all([
+        opt.human && opt.human.startsWith('data:') ? opt.human : src2dataURL(opt.human),
+        opt.garment && opt.garment.startsWith('data:') ? opt.garment : src2dataURL(opt.garment),
+      ]);
+      return { ...req, human_image: human, garment_image: garment };
+    }
+  }
+
+  function out2img(d) {
+    if (d.image_base64) return d.image_base64.startsWith('data:') ? d.image_base64 : 'data:image/jpeg;base64,' + d.image_base64;
+    if (d.image_url) return d.image_url;
+    if (d.image) return d.image;
+    if (d.output && d.output[0]) return d.output[0];
+    throw new Error('端点返回格式不对，需要 image_base64 或 image_url');
+  }
+
+  function emit(e) { listeners.forEach(f => { try { f(e); } catch (x) {} }); }
+
+  /* 让模型"按体型生成"：把人像换成对应体型的数字模特 */
+  function humanFor(bodyId, models) {
+    if (!cfg.bodyScan) return models[0].img;
+    const m = models.find(x => x.id === bodyId);
+    return (m || models[0]).img;
+  }
+
+  return {
+    generate, humanFor,
+    get config() { return { ...cfg }; },
+    setConfig(c) { Object.assign(cfg, c); save(); },
+    on(f) { listeners.push(f); },
+    providerName() { return { mock: '本地预览（未接入模型）', custom: '自建换装服务', fal: 'fal.ai 托管模型' }[cfg.provider] || cfg.provider; },
+  };
+})();
+window.TRYON = TRYON;
+</script>
+<script>/* =========================================================================
+   真人试穿 · 实时 AR 试衣镜
+   - getUserMedia 打开摄像头（需 localhost / https）
+   - MediaPipe Pose 追踪肩线/胯线，把真实服装图实时贴到人身上
+   - 追踪失败可手动拖动/缩放；摄像头不可用时可回落到虚拟形象
+   ========================================================================= */
+const LIVE = (() => {
+  const MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/';
+  const K = 1.46;                 // 服装宽度 = 肩宽 × K（与静态合成一致）
+  let video, canvas, ctx, errBox, fpsEl;
+  let stream = null, pose = null, running = false, rafId = 0, sending = false;
+  let land = null, lastSeen = 0, garment = null, garImg = null;
+  let adj = { scale: 1, x: 0, y: 0 };
+  let mode = 'camera';
+  let fps = { t: 0, n: 0 };
+
+  const $ = s => document.querySelector(s);
+
+  function loadImg(src) {
+    return new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i); i.onerror = rej; i.src = src;
+    });
+  }
+
+  async function ensurePose() {
+    if (pose) return pose;
+    if (!window.Pose) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = MP + 'pose.js';
+        s.onload = res; s.onerror = () => rej(new Error('pose.js 加载失败'));
+        document.head.appendChild(s);
+      });
+    }
+    pose = new window.Pose({ locateFile: f => MP + f });
+    pose.setOptions({
+      modelComplexity: 1, smoothLandmarks: true,
+      minDetectionConfidence: 0.5, minTrackingConfidence: 0.5,
+    });
+    pose.onResults(r => {
+      land = r.poseLandmarks || null;
+      if (land) lastSeen = performance.now();
+    });
+    return pose;
+  }
+
+  /* 用肩线 + 胯线决定服装的位置、大小与倾斜 */
+  function fitFromLandmarks(W, H) {
+    if (!land || !land[11] || !land[12]) return null;
+    const s = k => ({ x: (1 - land[k].x) * W, y: land[k].y * H, v: land[k].visibility ?? 1 });
+    const ls = s(11), rs = s(12);
+    if (ls.v < 0.4 || rs.v < 0.4) return null;
+    const mid = { x: (ls.x + rs.x) / 2, y: (ls.y + rs.y) / 2 };
+    const dist = Math.hypot(ls.x - rs.x, ls.y - rs.y);
+    let ang = Math.atan2(rs.y - ls.y, rs.x - ls.x);
+    if (ang > Math.PI / 2) ang -= Math.PI;
+    if (ang < -Math.PI / 2) ang += Math.PI;
+    /* 胯线：判断"上半身是否完整入镜"，只靠肩线会被近距离拍摄骗到 */
+    let torso = 0, hipOK = false;
+    if (land[23] && land[24]) {
+      const lh = s(23), rh = s(24);
+      if (lh.v > 0.4 && rh.v > 0.4) {
+        hipOK = true;
+        torso = Math.abs(((lh.y + rh.y) / 2) - mid.y);
+      }
+    }
+    return { mid, dist, ang, torso, hipOK, ratio: torso / H };
+  }
+
+  /* 取景是否合格：上半身要完整，且不能靠得太近 */
+  function framing(fit, W, H) {
+    if (!fit) return { ok: false, msg: '没找到人 · 请站到画面中间' };
+    if (!fit.hipOK) return { ok: false, msg: '请退后一点，让上半身完整入镜' };
+    if (fit.ratio > 0.38) return { ok: false, msg: '太近了 · 请退后一步' };
+    if (fit.ratio < 0.10) return { ok: false, msg: '有点远 · 请靠近一点' };
+    return { ok: true, msg: '取景很好' };
+  }
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    if (mode === 'image' && sourceImage) ctx.drawImage(sourceImage, 0, 0, W, H);
+    if (!garImg) return;
+    let fit = fitFromLandmarks(W, H);
+    let w, cx, cy, ang, tracked = !!fit;
+    const fr = framing(fit, W, H);
+    const ok = fr.ok;
+    if (fit && ok) {
+      const a = (window.LIVE_ANCHOR && LIVE_ANCHOR[garment]) || { sY:.2, sW:.72, cx:.5, ar:1.1 };
+      const st = (window.LIVE_FIT) || { k:1.02, anchor:'shoulder' };
+      w = fit.dist * st.k / a.sW;      // 服装整图宽度 = 肩宽 × 松量 ÷ 服装肩宽占比
+      cx = fit.mid.x; cy = fit.mid.y; ang = fit.ang;
+    } else {
+      // 取景不合格：不硬贴，只给淡淡的示意，不假装"已经穿上了"
+      fpsEl.textContent = fr.msg;
+      w = W * 0.34; cx = W * 0.5; cy = H * 0.42; ang = 0;
+    }
+    const scale = adj.scale;
+    w *= scale;
+    if (w > W * 0.82) w = W * 0.82;        // 限幅：近距离拍摄时衣服不会撑满整屏
+    const h = w * (garImg.height / garImg.width);
+    const a2 = (window.LIVE_ANCHOR && LIVE_ANCHOR[garment]) || { sY:.2, sW:.72, cx:.5, ar:1.1 };
+    ctx.save();
+    ctx.globalAlpha = (fit && ok) ? 0.96 : 0.26;
+    ctx.translate(cx + adj.x, cy + adj.y);
+    ctx.rotate(ang);
+    ctx.drawImage(garImg, -a2.cx * w, -a2.sY * h, w, h);
+    ctx.restore();
+    // 追踪状态提示
+    const now = performance.now();
+    fps.n++;
+    if (now - fps.t > 1000) {
+      const f = Math.round(fps.n * 1000 / (now - fps.t));
+      fpsEl.textContent = ok ? `取景很好 · ${f} fps` : fr.msg;
+      fps.n = 0; fps.t = now;
+    }
+  }
+
+  async function loop() {
+    if (!running) return;
+    const src = mode === 'image' ? sourceImage : video;
+    if (src && (mode === 'image' || video.readyState >= 2)) {
+      canvas.width = mode === 'image' ? sourceImage.naturalWidth : video.videoWidth;
+      canvas.height = mode === 'image' ? sourceImage.naturalHeight : video.videoHeight;
+      if (pose && !sending) {
+        sending = true;
+        try { await pose.send({ image: src }); } catch (e) {}
+        sending = false;
+      }
+      draw();
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  let sourceImage = null;
+
+  async function start() {
+    video = $('#liveVideo'); canvas = $('#liveCanvas'); ctx = canvas.getContext('2d');
+    errBox = $('#liveErr'); fpsEl = $('#liveFps');
+    if (!video) return;
+    errBox.classList.remove('on');
+    const q = new URLSearchParams(location.search);
+    mode = q.get('livemode') === 'image' ? 'image' : 'camera';
+
+    if (mode === 'image') {
+      sourceImage = await loadImg('assets/process/models__m3.jpg');
+      video.style.display = 'none';
+      canvas.style.background = '#F2EEE5';
+    } else {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        errBox.classList.add('on');
+        $('#liveErrMsg').innerHTML = '这个内置浏览器不支持调用摄像头。<b>请复制链接，用系统里的 Chrome / Edge 打开</b>，第一次会弹出"允许使用摄像头"。'
+          + `<div style="margin-top:16px"><button class="btn primary sm" onclick="copyLocal('http://localhost:5173/'+encodeURIComponent('AI虚拟试衣-大屏原型.html')+'?kiosk=1&start=live')">复制链接</button></div>`;
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false,
+        });
+      } catch (e) {
+        showError(e);
+        return;
+      }
+      video.srcObject = stream;
+      await video.play().catch(() => {});
+    }
+    if (!garment) setGarment((window.S && S.liveId) || 'g1');
+    running = true;
+    cancelAnimationFrame(rafId);
+    loop();
+    /* 姿态追踪并行加载：加载失败也不影响出效果，用户可手动调整 */
+    ensurePose()
+      .then(() => { fpsEl.textContent = '姿态追踪已就绪'; })
+      .catch(() => { pose = null; fpsEl.textContent = '姿态追踪不可用 · 可拖动手动贴合'; });
+  }
+
+  function showError(e) {
+    errBox.classList.add('on');
+    const m = String(e && e.name || e);
+    const tip = {
+      NotAllowedError: '浏览器里拒绝了摄像头权限。点地址栏右侧的摄像头图标允许后，再点「重试」。',
+      NotFoundError: '没有检测到摄像头设备。',
+      NotReadableError: '摄像头被其他程序占用了（比如视频会议软件）。',
+    }[m] || ('错误：' + m);
+    const isFile = location.protocol === 'file:';
+    const file = decodeURIComponent(location.pathname.split('/').pop() || 'AI虚拟试衣-大屏原型.html');
+    const localURL = 'http://localhost:5173/' + encodeURIComponent(file) + location.search;
+    $('#liveErrMsg').innerHTML = (isFile
+      ? `摄像头只能在 <b>http://localhost</b> 或 https 下打开，直接双击 HTML（file://）会被浏览器直接拒绝。<br>先双击交付目录里的 <b>启动原型.bat</b>（或运行 <b>node src/serve.js 5173 .</b>），再点下面的按钮。`
+      : tip)
+      + `<div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+           <button class="btn primary sm" onclick="location.href='${localURL}'">用 localhost 打开（推荐）</button>
+           <button class="btn sm" onclick="copyLocal('${localURL}')">复制 localhost 链接</button>
+         </div>`;
+  }
+
+  window.copyLocal = function (u) {
+    navigator.clipboard && navigator.clipboard.writeText(u)
+      .then(() => toast('已复制：' + u)).catch(() => toast(u));
+  };
+
+  function stop() {
+    running = false;
+    cancelAnimationFrame(rafId);
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (video) video.srcObject = null;
+    if (pose && pose.close) { try { pose.close(); } catch (e) {} pose = null; }
+    land = null;
+    if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  async function setGarment(id) {
+    const it = window.LIVE_LIST && LIVE_LIST.find(i => i.id === id);
+    if (!it) return;
+    garment = id;
+    garImg = await loadImg(it.img);
+  }
+
+  function resetFit() {
+    adj = { scale: 1, x: 0, y: 0 };
+    ['ltScale', 'ltX', 'ltY'].forEach((k, i) => { const el = $('#' + k); if (el) el.value = i === 0 ? 100 : 0; });
+  }
+
+  function bindControls() {
+    const bind = (id, key, k) => { const el = $('#' + id); if (el) el.oninput = () => { adj[key] = (+el.value) * k; }; };
+    bind('ltScale', 'scale', 0.01); bind('ltX', 'x', 1); bind('ltY', 'y', 1);
+    const box = $('.livebox');
+    if (!box) return;
+    let drag = null;
+    box.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, ax: adj.x, ay: adj.y }; });
+    window.addEventListener('pointermove', e => {
+      if (!drag) return;
+      adj.x = drag.ax + (e.clientX - drag.x); adj.y = drag.ay + (e.clientY - drag.y);
+    });
+    window.addEventListener('pointerup', () => drag = null);
+    box.addEventListener('wheel', e => {
+      e.preventDefault();
+      adj.scale = Math.min(1.6, Math.max(0.6, adj.scale - e.deltaY * 0.001));
+    }, { passive: false });
+  }
+
+  function toRender() {
+    const ids = [garment || (window.LIVE_LIST && LIVE_LIST[0].id) || 'w1'];
+    if (window.__liveToRender) return window.__liveToRender(ids);
+    track('live_to_render', { id: ids[0] });
+    stop();
+    S.look = MUYE.byId(ids[0]) ? ids[0] : null;
+    renderItems(); renderSel();
+    startGen();
+  }
+
+  return { start, stop, setGarment, resetFit, toRender, bind: bindControls,
+    get state() { return { running, mode, tracked: !!land, garment }; } };
+})();
+
+document.addEventListener('DOMContentLoaded', () => LIVE.bind());
+window.LIVE = LIVE;   /* 让内联 onclick 与 app.js 都能取到 */
+
+
+</script>
+<script>/* =========================================================================
+   用顾客本人的照片试穿
+   站到屏前 → 拍照（本机）→ 照片作为换装模型的人像输入 → 生成"你穿这件"
+   没有接入模型时，用本机合成做预览（照片 + 服装图层），保证不空手。
+   ========================================================================= */
+const PHOTO = (() => {
+  const MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/';
+  let video, canvas, ctx, guide, hint, err, stream = null, pose = null, running = false;
+  let raf = 0, sending = false, land = null, lastSeen = 0, mode = 'camera', source = null;
+  const $ = s => document.querySelector(s);
+
+  const loadImg = src => new Promise((res, rej) => {
+    const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
+  });
+
+  async function ensurePose() {
+    if (pose) return pose;
+    if (!window.Pose) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = MP + 'pose.js'; s.onload = res; s.onerror = () => rej(new Error('pose.js 加载失败'));
+        document.head.appendChild(s);
+      });
+    }
+    pose = new window.Pose({ locateFile: f => MP + f });
+    pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: .5, minTrackingConfidence: .5 });
+    pose.onResults(r => { land = r.poseLandmarks || null; if (land) lastSeen = performance.now(); });
+    return pose;
+  }
+
+  /* 全身是否入镜：肩、髋、膝、踝都识别到 */
+  function fullBody() {
+    if (!land) return false;
+    const need = [11, 12, 23, 24, 25, 26, 27, 28];
+    return need.every(i => land[i] && (land[i].visibility ?? 1) > .4);
+  }
+
+  function tick() {
+    if (!running) return;
+    const src = mode === 'image' ? source : video;
+    if (src && (mode === 'image' || video.readyState >= 2)) {
+      canvas.width = mode === 'image' ? source.naturalWidth : video.videoWidth;
+      canvas.height = mode === 'image' ? source.naturalHeight : video.videoHeight;
+      if (mode === 'image') {
+        ctx.save(); ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+        ctx.drawImage(source, 0, 0, canvas.width, canvas.height); ctx.restore();
+      }
+      if (pose && !sending) { sending = true; pose.send({ image: src }).catch(() => {}).finally(() => sending = false); }
+      const ok = fullBody();
+      guide.classList.toggle('ok', ok);
+      hint.textContent = ok ? '已识别到全身 · 可以拍' : (performance.now() - lastSeen > 1500 ? '没看到人 · 请站到框里' : '请退后一点，让全身入镜');
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  async function start() {
+    video = $('#photoVideo'); canvas = $('#photoCanvas'); ctx = canvas.getContext('2d');
+    guide = $('#photoGuide'); hint = $('#photoHint'); err = $('#photoErr');
+    if (!video) return;
+    err.classList.remove('on');
+    const q = new URLSearchParams(location.search);
+    mode = q.get('livemode') === 'image' ? 'image' : 'camera';
+    if (mode === 'image') {
+      source = await loadImg('assets/process/models__m3.jpg');
+      video.style.display = 'none';
+      canvas.style.background = '#F1F1F1';
+    } else {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        err.classList.add('on');
+        $('#photoErrMsg').innerHTML = '这个内置浏览器不支持调用摄像头。<b>请复制下面的链接，用系统里的 Chrome / Edge 打开</b>，浏览器第一次会弹出"允许使用摄像头"，点允许即可。'
+          + `<div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+               <button class="btn primary sm" onclick="copyLocal('http://localhost:5173/'+encodeURIComponent('AI虚拟试衣-大屏原型.html')+'?kiosk=1&start=photo')">复制链接</button>
+             </div>`;
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false });
+      } catch (e) { return showErr(e); }
+      video.srcObject = stream;
+      await video.play().catch(() => {});
+    }
+    running = true; cancelAnimationFrame(raf); tick();
+    ensurePose().then(() => {}).catch(() => { hint.textContent = '识别不可用 · 仍可拍摄'; });
+  }
+
+  function showErr(e) {
+    err.classList.add('on');
+    const isFile = location.protocol === 'file:';
+    const file = decodeURIComponent(location.pathname.split('/').pop() || 'AI虚拟试衣-大屏原型.html');
+    const localURL = 'http://localhost:5173/' + encodeURIComponent(file) + location.search;
+    $('#photoErrMsg').innerHTML = (isFile
+      ? '摄像头只能在 <b>http://localhost</b> 或 https 下打开。先运行 <b>启动原型.bat</b>，再用下面的按钮。'
+      : ({
+        NotAllowedError: '浏览器拒绝了摄像头权限，点地址栏右侧的摄像头图标允许后重试。',
+        NotFoundError: '没有检测到摄像头。',
+        NotReadableError: '摄像头被其他程序占用了。',
+      }[String(e && e.name)] || ('错误：' + (e && e.name))))
+      + `<div style="margin-top:16px"><button class="btn primary sm" onclick="location.href='${localURL}'">用 localhost 打开（推荐）</button></div>`;
+  }
+
+  function stop() {
+    running = false; cancelAnimationFrame(raf);
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (video) video.srcObject = null;
+    if (pose && pose.close) { try { pose.close(); } catch (e) {} pose = null; }
+    land = null;
+    if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  /* 拍照：把当前画面（镜像）存成本机 dataURL，并记录姿态用于本地合成 */
+  function capture() {
+    const cb = $('#photoConsent');
+    if (cb && !cb.checked) { toast('请先勾选照片使用同意'); return; }
+    const src = mode === 'image' ? source : video;
+    if (!src || (!mode === 'image' && video.readyState < 2)) { toast('摄像头还没准备好'); return; }
+    const W = mode === 'image' ? source.naturalWidth : video.videoWidth;
+    const H = mode === 'image' ? source.naturalHeight : video.videoHeight;
+    const scale = Math.min(1, 900 / W);
+    const c = document.createElement('canvas');
+    c.width = Math.round(W * scale); c.height = Math.round(H * scale);
+    const x = c.getContext('2d');
+    x.translate(c.width, 0); x.scale(-1, 1);          // 镜像，和屏幕所见一致
+    x.drawImage(src, 0, 0, c.width, c.height);
+    const url = c.toDataURL('image/jpeg', .92);
+    S.userPhoto = url;
+    S.userPose = land ? land.map(p => ({ x: p.x, y: p.y, v: p.visibility ?? 1 })) : null;
+    track('user_photo_captured', { full: fullBody() });
+    stop();
+    go('outfit');
+    toast('已拍下你的照片：照片只在本机使用，60 秒后随画面一起清除');
+  }
+
+  function countdown() {
+    let n = 3;
+    hint.textContent = '倒计时 ' + n;
+    const t = setInterval(() => {
+      n--;
+      if (n > 0) { hint.textContent = '倒计时 ' + n; return; }
+      clearInterval(t); capture();
+    }, 1000);
+  }
+
+  /* 本地回落：顾客照片 + 服装抠图（按拍照时的姿态对齐；没有姿态就用默认位置） */
+  async function composite(garmentId) {
+    if (!S.userPhoto) return null;
+    const item = window.MUYE ? MUYE.byId(garmentId) : null;
+    const cut = item && item.cut;
+    if (!cut) return null;                       // 这件没有抠图，就回落到商品实拍
+    const key = Object.keys(window.LIVE_ANCHOR || {}).find(k => (item.cut || '').includes(k)) || '';
+    const [photo, g] = await Promise.all([loadImg(S.userPhoto), loadImg(cut)]);
+    const a = (window.LIVE_ANCHOR && LIVE_ANCHOR[key]) || { sY: .2, sW: .72, cx: .5, ar: 1.1 };
+    const c = document.createElement('canvas');
+    c.width = photo.naturalWidth; c.height = photo.naturalHeight;
+    const x = c.getContext('2d');
+    x.drawImage(photo, 0, 0);
+    let w = c.width * .48, cx = c.width * .5, cy = c.height * .40;
+    const p = S.userPose;
+    if (p && p[11] && p[12]) {
+      const P = k => ({ x: (1 - p[k].x) * c.width, y: p[k].y * c.height });   // 照片已镜像
+      const l0 = P(11), r0 = P(12);
+      const dist = Math.hypot(l0.x - r0.x, l0.y - r0.y);
+      if (dist > 20) {
+        w = dist * (window.LIVE_FIT.k || 1.06) / a.sW;
+        cx = (l0.x + r0.x) / 2; cy = (l0.y + r0.y) / 2;
+      }
+    }
+    const h = w * (g.naturalHeight / g.naturalWidth);
+    x.save();
+    x.globalAlpha = .97;
+    x.drawImage(g, cx - a.cx * w, cy - a.sY * h, w, h);
+    x.restore();
+    return c.toDataURL('image/jpeg', .92);
+  }
+
+  return { start, stop, capture, countdown, composite, get hasPhoto() { return !!S.userPhoto; } };
+})();
+window.PHOTO = PHOTO;
+</script>
+<script>/* =========================================================================
+   交互逻辑：状态机 / 等待与失败 / 隐私计时 / 扫码转化 / 演示控制
+   ========================================================================= */
+const B = MUYE.BODIES, IT = MUYE.ITEMS;
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* 实时 AR 镜用的服装抠图与锚点（挂拍图才适合实时贴合） */
+const LIVE_LIST = [
+  { id:'g1', name:'燕麦羊毛开衫', tone:'燕麦',   price:399,  img:'assets/process/garments__g1.png' },
+  { id:'g2', name:'真丝垂感衬衫', tone:'月光白', price:599,  img:'assets/process/garments__g2.png' },
+  { id:'g3', name:'重磅纯棉 T 恤', tone:'石墨黑', price:199, img:'assets/process/garments__g3.png' },
+  { id:'g6', name:'炭灰西装外套', tone:'炭灰',   price:899,  img:'assets/process/garments__g6.png' },
+];
+window.LIVE_LIST = LIVE_LIST;
+window.LIVE_ANCHOR = {
+  g1:{ sY:0.192, sW:0.709, cx:0.499, ar:1.088 },
+  g2:{ sY:0.201, sW:0.640, cx:0.495, ar:1.223 },
+  g3:{ sY:0.222, sW:0.785, cx:0.500, ar:1.070 },
+  g6:{ sY:0.235, sW:0.784, cx:0.496, ar:1.139 },
+  g4:{ sY:0.167, sW:0.716, cx:0.510, ar:1.405 },
+  g5:{ sY:0.180, sW:0.700, cx:0.500, ar:1.900 },
+  g8:{ sY:0.238, sW:0.945, cx:0.527, ar:1.001 },
+};
+window.LIVE_FIT = { k:1.06, anchor:'shoulder' };
+
+const S = {
+  scr: 'attract',
+  avatar: 'm3',
+  cat: 'top',
+  look: null,
+  code: '------',
+  view: 'fit',
+  genMs: 18000,
+  failNext: false,
+  staticMode: false,
+  liveId: 'g1',
+};
+
+const T = { idle: null, idleLeft: 90, gen: null, clear: null, clearLeft: 60 };
+const IDLE_SEC = 90, CLEAR_SEC = 60;
+
+function randCode() {
+  const c = 'ACDEFGHJKLMNPQRTUVWXY34679';
+  let s = '';
+  for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)];
+  return s;
+}
+const money = n => '¥' + n.toLocaleString('zh-CN');
+const body = () => MUYE.bodyById(S.avatar);
+const selItems = () => (S.look ? [MUYE.byId(S.look)].filter(Boolean) : []);
+
+/* ------------------------------ 屏幕切换 ------------------------------ */
+function go(name) {
+  S.scr = name;
+  if (name === 'rec') renderRec();
+  $$('.scr').forEach(el => el.classList.toggle('on', el.dataset.scr === name));
+  if (name === 'attract') { stopIdle(); T.clearLeft = CLEAR_SEC; $('#pillbar').style.transform = 'scaleX(0)'; }
+  else { startIdle(); }
+}
+
+function toast(msg, ms = 2600) {
+  const el = $('#toast');
+  el.innerHTML = msg;
+  el.classList.add('on');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('on'), ms);
+}
+
+/* ------------------------------ 待机页 ------------------------------ */
+function renderAttract() {
+  $('#attractArt').innerHTML = MUYE.figureSVG({ body: 'm4', items: ['w6'] })
+    + MUYE.figureSVG({ body: 'm1', items: ['w1'] })
+    + MUYE.figureSVG({ body: 'm3', items: ['w4'] });
+}
+
+/* ------------------------------ 形象选择 ------------------------------ */
+function renderAvatars() {
+  $('#avatarGrid').innerHTML = B.map(b => `
+    <div class="avcard ${b.id === S.avatar ? 'sel' : ''}" data-av="${b.id}">
+      ${MUYE.figureSVG({ body: b })}
+      <div class="nm">${b.name}</div>
+      <div class="mt">${b.note}</div>
+      <div class="tip">${b.tip}</div>
+    </div>`).join('');
+  $$('#avatarGrid .avcard').forEach(el => el.onclick = () => {
+    S.avatar = el.dataset.av;
+    renderAvatars();
+    const b = body();
+    $('#curAvatarName').textContent = `${b.name} · ${b.height}cm · ${b.shape}`;
+    $('#avSummary').textContent = `已选：${b.name} · ${b.height}cm · ${b.shape}`;
+    toast(`已切换为「${b.name}」${b.note}，看版型更接近你的身形`);
+  });
+}
+
+/* ------------------------------ 服装选择 ------------------------------ */
+const CATS = [
+  { k: 'top', n: '上装', hint: '最多选 1 件' },
+  { k: 'bottom', n: '下装', hint: '最多选 1 件' },
+  { k: 'dress', n: '连衣裙', hint: '选了裙子会替换上下装' },
+  { k: 'outer', n: '外套', hint: '可叠加在搭配外' },
+];
+
+function renderTabs() {
+  $('#tabs').innerHTML = CATS.map(c =>
+    `<button class="tab ${c.k === S.cat ? 'on' : ''}" data-cat="${c.k}">${c.n}</button>`).join('')
+    + `<span style="align-self:center;margin-left:10px;font-size:21px;color:#9AA0A6">${
+      (CATS.find(c => c.k === S.cat) || {}).hint || ''}</span>`;
+  $$('#tabs .tab').forEach(el => el.onclick = () => { S.cat = el.dataset.cat; renderTabs(); renderItems(); });
+}
+
+function renderItems() {
+  /* 男装形象下只展示中性/男装款（连衣裙自动隐藏） */
+  const list = MUYE.availableFor(body()).filter(i => i.cat === S.cat);
+  $('#itemGrid').innerHTML = list.map(i => `
+    <div class="itemcard ${S.look === i.id ? 'sel' : ''}" data-id="${i.id}">
+      ${i.tag ? `<div class="tag">${i.tag}</div>` : ''}
+      <div class="im">${MUYE.thumbSVG(i, body())}</div>
+      <div class="info">
+        <div class="nm">${i.name}</div>
+        <div class="meta"><span>${i.tone}</span><span>${i.stock}</span></div>
+        <div class="pr">${money(i.price)}</div>
+      </div>
+    </div>`).join('');
+  $$('#itemGrid .itemcard').forEach(el => el.onclick = () => toggleItem(el.dataset.id));
+}
+
+function toggleItem(id) {
+  S.look = (S.look === id) ? null : id;
+  S.staticMode = false;
+  renderItems(); renderTabs(); renderSel();
+  track('pick_item', { id });
+}
+
+function renderSel() {
+  const items = selItems();
+  $('#selList').innerHTML = items.length
+    ? `<div class="selchip">${items[0].name} <b>${money(items[0].price)}</b><i data-x="1">×</i></div>`
+    : `<div class="selchip empty">还没选衣服 —— 点一件想试的</div>`;
+  $$('#selList [data-x]').forEach(el => el.onclick = () => { S.look = null; renderItems(); renderSel(); });
+  const n = items.length;
+  $('#estTime').textContent = n ? '16 秒' : '—';
+  $('#btnGen').disabled = !n;
+  $('#btnGen').textContent = n ? '生成试穿效果' : '请先选择衣服';
+}
+
+/* ------------------------------ 生成 / 等待 ------------------------------ */
+const STEPS = ['读取身形与版型参数', '服装贴合与褶皱计算', '面料质感和光影渲染', '生成效果图并排队加密'];
+
+async function startGen() {
+  if (!selItems().length) return;
+  S.code = randCode();
+  S.genResult = null;
+  const run = (S.runId = (S.runId || 0) + 1);   // 每次生成都有独立 token，旧的一律作废
+  go('gen');
+  track('gen_start', { code: S.code });
+  const total = S.genMs;
+  const t0 = Date.now();
+  /* 调用换装模型（按体型传数字模特 + 服装 + 体型参数）；未配置时自动回落本地预览 */
+  const it = selItems()[0], b0 = body();
+  let modelDone = false;
+  const useUserPhoto = !!S.userPhoto;
+  if (window.TRYON) {
+    const localPreview = useUserPhoto && window.PHOTO ? await PHOTO.composite(it.id) : null;
+    TRYON.generate({
+      human: useUserPhoto ? S.userPhoto : TRYON.humanFor(S.avatar, B),
+      garment: MUYE.wornFor(it, body()),
+      desc: it.name,
+      body: { height: b0.height, shape: b0.shape, size: sizeAdvice() },
+      fallback: localPreview || MUYE.wornFor(it, body()),
+    }).then(r => {
+      S.genResult = r.image; S.genOk = r.ok; S.genProvider = r.provider; S.genMsUsed = r.ms;
+      modelDone = true;
+      track(r.ok ? 'model_success' : 'model_fail', { provider: r.provider, ms: r.ms });
+    }).catch(() => { modelDone = true; });
+  } else { modelDone = true; }
+  $('#ringFg').setAttribute('stroke-dashoffset', 326.7);
+  $('#pctNum').textContent = '0%';
+  const mark = [0, 0, 0, 0];
+  const paint = () => {
+    const p = Math.min(1, (Date.now() - t0) / total);
+    S.ticks = (S.ticks || 0) + 1; S.lastP = Math.round(p * 100); S.lastRun = run;
+    const pct = Math.round(p * 100);
+    $('#pctNum').textContent = pct + '%';
+    $('#ringFg').setAttribute('stroke-dashoffset', (326.7 * (1 - p)).toFixed(1));
+    $('#etaText').textContent = p < 1 ? `预计还需 ${Math.max(1, Math.ceil((total - (Date.now() - t0)) / 1000))} 秒` : '正在完成';
+    $$('#genSteps li').forEach((li, i) => {
+      const from = [0, .3, .58, .86][i], to = [.3, .58, .86, 1.02][i];
+      const done = p >= to, on = p >= from && p < to;
+      li.classList.toggle('done', done);
+      li.classList.toggle('on', on);
+      if (on && !mark[i]) { mark[i] = 1; }
+    });
+    return p >= 1;
+  };
+  paint();
+  clearInterval(S.genTimer);
+  S.genTimer = setInterval(() => {
+    if (run !== S.runId) { clearInterval(S.genTimer); return; }   // 已被新的生成取代
+    if (!paint()) return;
+    clearInterval(S.genTimer);
+    const wait = () => {
+      if (run !== S.runId) return;
+      if (modelDone || Date.now() - t0 > 100000) finishGen();
+      else setTimeout(wait, 160);
+    };
+    wait();
+  }, 180);
+  makeQR('#qrGen', qrText());
+  $('#codeGen').textContent = S.code;
+}
+
+function finishGen() {
+  if (S.failNext) { S.failNext = false; showFail(); return; }
+  showResult();
+}
+
+function cancelGen() { S.runId = (S.runId || 0) + 1; clearInterval(S.genTimer); go('outfit'); toast('已取消生成，你的选择还在，可以直接重来'); }
+
+/* ------------------------------ 结果页 ------------------------------ */
+function sizeAdvice() {
+  const b = body();
+  let s = b.height <= 162 ? 'S' : b.height <= 168 ? 'M' : b.height <= 172 ? 'L' : 'XL';
+  if (b.shape === '丰满' && s === 'S') s = 'M';
+  if (b.shape === '丰满' && s === 'M') s = 'L';
+  return s;
+}
+
+/* ------------------------------ AI 推荐（身高体重 + 门店现货） ------------------------------ */
+function bodyHW() {
+  const h = Number(($('#inH') || {}).value) || 168;
+  const w = Number(($('#inW') || {}).value) || 58;
+  return { h, w };
+}
+function recSize(h, w) {
+  const bmi = w / Math.pow(h / 100, 2);
+  let s = h <= 162 ? 'S' : h <= 168 ? 'M' : h <= 172 ? 'L' : 'XL';
+  if (bmi >= 23 && s === 'S') s = 'M';
+  if (bmi >= 23 && s === 'M') s = 'L';
+  return { size: s, bmi: bmi.toFixed(1) };
+}
+function recList() {
+  const { h, w } = bodyHW();
+  const { size, bmi } = recSize(h, w);
+  const shape = bmi >= 23 ? '丰满' : bmi <= 18.5 ? '偏瘦' : '匀称';
+  const scored = IT.map(it => {
+    let score = 0;
+    const stockNum = (it.stock.match(/\d+/) || [1])[0] | 0;
+    const sizes = { S: 3, M: 4, L: 3, XL: 1 };
+    score += sizes[size] ? 24 : 8;
+    score += Math.min(stockNum, 12);
+    if (shape === '丰满' && (it.cat === 'outer' || it.cat === 'dress')) score += 8;
+    if (shape === '偏瘦' && (it.cat === 'top' || it.cat === 'dress')) score += 6;
+    if (h <= 162 && it.id === 'w4') score -= 8;
+    if (h >= 172 && it.id === 'w5') score -= 5;
+    return { it, score };
+  }).sort((a, b) => b.score - a.score);
+  return { size, bmi, shape, h, w, list: scored.slice(0, 3).map(x => x.it) };
+}
+function renderRec() {
+  const r = recList();
+  const grid = $('#recGrid'); if (!grid) return;
+  $('#recWhy').innerHTML = `身高 <b>${r.h}cm</b> · 体重 <b>${r.w}kg</b> · BMI ${r.bmi} · 建议 <b>${r.size}</b> 码`
+    + `（当前形象 ${sizeAdvice()} 码）· 已按本店现货优先排序`;
+  grid.innerHTML = r.list.map((it, i) => {
+    const pair = MUYE.pairOf(it.id);
+    const total = it.price + (pair ? pair.item.price : 0);
+    return `<div class="itemcard" onclick="startTryonFrom('${it.id}')">
+      <div class="im">${MUYE.thumbSVG(it, body())}</div>
+      <div class="info">
+        <div class="nm">${i + 1}. ${it.name}</div>
+        <div class="meta"><span>建议 ${r.size} 码</span><span>${it.stock}</span></div>
+        <div class="pr">${money(it.price)}</div>
+        ${pair ? `<div class="meta" style="margin-top:6px"><span>搭 ${pair.item.name}</span><b style="color:#111">合计 ${money(total)}</b></div>` : ''}
+      </div></div>`;
+  }).join('');
+}
+function startTryonFrom(id) {
+  S.look = id; S.genMs = S.fastMode ? 1500 : 16000;
+  track('rec_pick', { id });
+  renderItems(); renderSel();
+  startGen();
+}
+
+/* ------------------------------ 360° 转圈 / 转一圈切换下一套 ------------------------------ */
+function bindSpin() {
+  const box = $('#resFig'); if (!box) return;
+  if (box._spin) return;
+  let down = false, x0 = 0, last = 0, total = 0, used = 0;
+  box.style.touchAction = 'none';
+  box.addEventListener('pointerdown', e => {
+    down = true; x0 = e.clientX; last = e.clientX; total = 0; used = false;
+    if (box.setPointerCapture) { try { box.setPointerCapture(e.pointerId); } catch (x) {} }
+    e.preventDefault();
+  });
+  box.addEventListener('pointermove', e => {
+    if (!down) return;
+    const step = 95;
+    total += e.clientX - last;
+    last = e.clientX;
+    if (S.spinFrames) {
+      const moved = Math.trunc(total / step) - 0;
+      const i = ((moved % 4) + 4) % 4;
+      if (i !== S.spinIdx) {
+        S.spinIdx = i;
+        const img = box.querySelector('img');
+        if (img) img.src = S.spinFrames[i];
+      }
+      if (Math.abs(total) > 470 && !used) {              // 转满一圈 → 换下一套
+        used = true;
+        switchLook(nextLookId(total > 0 ? 1 : -1));
+      }
+    } else if (Math.abs(total) > 120 && !used) {          // 没有角度帧：滑动即换下一套
+      used = true;
+      switchLook(nextLookId(total < 0 ? 1 : -1));
+    }
+    e.preventDefault();
+  });
+  const up = e => { down = false; try { box.releasePointerCapture(e.pointerId); } catch (x) {} };
+  box.addEventListener('pointerup', up);
+  box.addEventListener('pointercancel', up);
+  box.addEventListener('pointerleave', () => { down = false; });
+  box._spin = true;
+}
+function nextLookId(step) {
+  const i = IT.findIndex(x => x.id === S.look);
+  return IT[(i + step + IT.length) % IT.length].id;
+}
+
+/* 箭头按钮：有角度帧就转一格；转满一圈（或没有角度帧）就换下一套 */
+function spinBy(dir) {
+  if (S.spinFrames && S.spinFrames.length > 1) {
+    const next = S.spinIdx + dir;
+    if (next >= 0 && next < S.spinFrames.length) {
+      S.spinIdx = next;
+      const img = $('#resFig').querySelector('img');
+      if (img) img.src = S.spinFrames[next];
+      track('spin_360', { idx: next });
+      if (next === S.spinFrames.length - 1 && dir > 0) toast('已经转完一圈，再点一次看下一套');
+      return;
+    }
+  }
+  switchLook(nextLookId(dir));
+}
+
+function showResult() {
+  S.staticMode = false;
+  go('result');
+  track('gen_success', { code: S.code });
+  const items = selItems();
+  const b = body();
+  const it = items[0];
+  /* 全屏底图：换装模型结果优先，其次是本地合成预览，最后是商品实拍 */
+  const bgSrc = S.genResult || MUYE.wornFor(it, body());
+  $('#resFig').style.setProperty('--img', `url("${bgSrc}")`);
+  $('#resFig').innerHTML = `<img src="${bgSrc}" alt="" draggable="false">`;
+  $('#resBadge').textContent = (S.userPhoto ? '基于你的照片 · ' : '')
+    + (S.genOk === false ? '本地合成预览' : 'AI 生成效果 · ' + (window.TRYON ? TRYON.providerName() : ''));
+  /* 钉在衣服上的商品标签 */
+  $('#resItems').innerHTML = `<img src="${MUYE.wornFor(it, body())}" alt=""><b>${it.name}</b><i onclick="backToOutfit()">×</i>`;
+  /* 底部 Dock：价格 / 尺码 / 现货 + 衣服横滑 + 主按钮 */
+  $('#resTotal').textContent = money(it.price);
+  $('#sizeHead').textContent = `建议 ${sizeAdvice()} 码`;
+  $('#sizeBody').textContent = `${it.tone} · 本店现货 ${it.stock}`;
+  $('#resRail').innerHTML = MUYE.availableFor(body()).map(x => `<div class="rthumb ${x.id === it.id ? 'on' : ''}" onclick="switchLook('${x.id}')"><img src="${MUYE.wornFor(x, body())}" alt=""></div>`).join('');
+  /* 自动搭配：这件 + 推荐的那件 */
+  const pair = MUYE.pairOf(it.id);
+  $('#resPair').innerHTML = pair
+    ? `<img src="${MUYE.wornFor(pair.item, body())}" alt=""><span><b>本套搭配：</b>${it.name} + ${pair.item.name} · 合计 <b>${money(it.price + pair.item.price)}</b></span>
+       <button onclick="switchLook('${pair.item.id}')">换穿这一件</button>`
+    : `<span><b>这件自成一套</b> · ${it.name}</span>`;
+  /* 360°：有角度帧就转起来，转满一圈切换下一套 */
+  S.spinFrames = MUYE.framesFor(it, body());
+  if (S.spinItem !== it.id) { S.spinIdx = 0; S.spinItem = it.id; }   // 同一件重绘时保留旋转角度
+  bindSpin();
+  $('#resFlat').innerHTML = MUYE.flatLay(items);
+  $('#resFlat').innerHTML = MUYE.flatLay(items);
+  $('#codeRes').textContent = S.code;
+  $('#codeRes2').textContent = S.code;
+  makeQR('#qrRes', qrText());
+  setView('fit');
+  startClear();
+}
+
+/* 结果页直接换一件：重新生成这一件 */
+function switchLook(id) {
+  if (!MUYE.byId(id)) return;
+  S.look = id;
+  track('switch_look', { id });
+  S.genMs = S.fastMode ? 1500 : 14000;
+  renderItems(); renderSel();
+  startGen();
+}
+
+function staticFallback() {
+  showResult();
+  S.staticMode = true;
+  $('#resBadge').textContent = '静态搭配图 · 兜底方案';
+  setView('flat');
+  toast('已用静态搭配图兜底，这套搭配和你在屏幕上选的一致');
+  track('static_fallback');
+}
+
+function setView(v) {
+  S.view = v;
+  $('#resFlat').classList.toggle('on', v !== 'fit');
+  $$('.rseg button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+}
+
+function backToOutfit() { stopClear(); go('outfit'); renderItems(); renderSel(); }
+
+/* 门店真实转化动作：呼叫导购 */
+function callStaff() {
+  track('call_staff');
+  toast('已通知 3F 导购：她会带着这件衣服过来，也可以直接帮你调货、改裤长');
+  const el = $('#resBadge');
+  if (el) el.textContent = (S.userPhoto ? '基于你的照片 · ' : '') + '已呼叫导购';
+}
+
+/* ------------------------------ 失败页 ------------------------------ */
+function showFail() {
+  go('fail');
+  track('gen_fail');
+  const n = selItems().length;
+  $('#failLog').textContent = `错误码 E-NET-07 · 已自动重试 1 次 · 耗时 ${(10 + n * 1.2).toFixed(1)} 秒 · 你的搭配已保留`;
+}
+
+function retryGen() {
+  toast('已切换到备用渲染通道，正在重新生成');
+  track('retry_gen');
+  S.genMs = S.fastMode ? 1500 : 18000;
+  startGen();
+}
+
+function qrFallback() {
+  go('result');
+  S.staticMode = true;
+  $('#resBadge').textContent = '稍后发到手机';
+  setView('flat');
+  toast('已为你保留这套搭配：扫码或让导购记下取件码，出图后直接发到你手机');
+  track('qr_fallback');
+  startClear();
+}
+
+/* ------------------------------ 二维码 / 取件码 ------------------------------ */
+function qrText() {
+  return phonePageURL();
+}
+
+/* 二维码指向真实可打开的页面：手机连同一个 Wi-Fi 扫码即可打开手机端商城 */
+function phonePageURL() {
+  const host = location.hostname || 'localhost';
+  /* 本地打开用局域网地址（手机扫码可访问）；部署到公网后直接用当前域名 */
+  const isLocal = !host || host === 'localhost' || host === '127.0.0.1'
+    || /^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+  const origin = isLocal
+    ? `http://${window.LAN_HOST || host}:${location.port || '5173'}`
+    : location.origin;
+  const shortName = 'phone.html';
+  const items = selItems().map(i => i.id).join(',');
+  return `${origin}/${shortName}?code=${S.code}&avatar=${S.avatar}&items=${items}`;
+}
+
+function makeQR(sel, text) {
+  const el = typeof sel === 'string' ? $(sel) : sel;
+  if (!el || typeof QRCode === 'undefined') return;
+  el.innerHTML = '';
+  new QRCode(el, { text, width: 264, height: 264, colorDark: '#14171A', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+}
+
+/* ------------------------------ 隐私计时 ------------------------------ */
+function startIdle() {
+  stopIdle();
+  T.idleLeft = IDLE_SEC;
+  T.idle = setInterval(() => {
+    T.idleLeft--;
+    if ($('#idleNum')) $('#idleNum').textContent = Math.max(0, T.idleLeft);
+    if ($('#idleNum2')) $('#idleNum2').textContent = Math.max(0, T.idleLeft);
+    $('#pillbar').style.transform = `scaleX(${1 - T.idleLeft / IDLE_SEC})`;
+    if (T.idleLeft <= 0) { resetAll('长时间未操作，已为你自动清屏'); }
+  }, 1000);
+}
+function stopIdle() { clearInterval(T.idle); T.idle = null; T.idleLeft = IDLE_SEC; $('#pillbar').style.transform = 'scaleX(0)'; }
+
+function startClear() {
+  stopClear();
+  T.clearLeft = CLEAR_SEC;
+  T.clear = setInterval(() => {
+    T.clearLeft--;
+    $('#clearNum').textContent = Math.max(0, T.clearLeft);
+    const p = 1 - T.clearLeft / CLEAR_SEC;
+    $('#clearRing').style.background = `conic-gradient(#A9522F ${p * 360}deg,#F0DBD2 0)`;
+    if (T.clearLeft <= 0) { resetAll('已自动清除本次试穿画面'); }
+  }, 1000);
+}
+function stopClear() { clearInterval(T.clear); T.clear = null; T.clearLeft = CLEAR_SEC; }
+
+function resetAll(msg) {
+  S.runId = (S.runId || 0) + 1; clearInterval(S.genTimer); stopClear(); stopIdle();
+  S.look = null;
+  S.cat = 'top'; S.code = '------'; S.staticMode = false; S.failNext = false; S.genMs = 18000; S.fastMode = false;
+  S.userPhoto = null; S.userPose = null;
+  $('#qrGen').innerHTML = ''; $('#qrRes').innerHTML = '';
+  renderTabs(); renderItems(); renderSel(); renderAvatars();
+  go('attract');
+  toast(msg || '已回到首页');
+}
+
+/* ------------------------------ 弹层 ------------------------------ */
+function openModal(id) { $('#' + id).classList.add('on'); }
+function closeModal(id) { $('#' + id).classList.remove('on'); }
+function openPrivacy() { openModal('mPrivacy'); track('privacy_open'); }
+let MREAL_HTML = '';
+function openRealTry() {
+  if (MREAL_HTML) $('#mReal').innerHTML = MREAL_HTML;
+  openModal('mReal');
+}
+
+/* 用我的照片试穿：先给一段可读的告知，再进拍照页 */
+function openPhotoConsent() {
+  const box = $('#mReal');
+  box.querySelector('h3').textContent = '用你自己的照片试穿？';
+  box.querySelector('.lead').innerHTML = '会把你在店里拍的这一张照片当成"数字人像"来生成效果图。先看清下面这几条，再决定要不要继续。';
+  box.querySelector('.dl li:nth-child(1)').innerHTML = '照片只在<b>拍照时获取一次</b>，用来生成"你穿这件"的效果图。';
+  box.querySelector('.dl li:nth-child(2)').innerHTML = '默认<b>只在本机处理</b>，不上传、不入库、不用于训练；生成结束后立即删除。';
+  box.querySelector('.dl li:nth-child(3)').innerHTML = '如果你在设置里接了<b>云端换装模型</b>，生成时会把这张照片发送到模型服务，仅用于本次生成并立即删除。';
+  box.querySelector('.dl li:nth-child(4)').innerHTML = '随时可以按屏幕上的"退出"中止，也可以改用虚拟形象。';
+  box.querySelector('.acts').innerHTML =
+    '<button class="btn ghost" onclick="closeModal(\'mReal\')">还是用虚拟形象</button>' +
+    '<button class="btn primary" onclick="closeModal(\'mReal\');go(\'photo\');PHOTO.start()">同意并去拍照</button>';
+  openModal('mReal');
+  track('photo_entry');
+}
+
+/* ------------------------------ 换装模型设置 ------------------------------ */
+function openModel() {
+  const c = TRYON.config;
+  $('#mmProvider').value = c.provider;
+  $('#mmEndpoint').value = c.endpoint || '';
+  $('#mmKey').value = c.key || '';
+  $('#mmModel').value = c.model || 'fal-ai/cat-vton';
+  $('#mmState').textContent = '当前：' + TRYON.providerName();
+  openModal('mModel');
+}
+function readModel() {
+  return {
+    provider: $('#mmProvider').value,
+    endpoint: $('#mmEndpoint').value.trim(),
+    key: $('#mmKey').value.trim(),
+    model: $('#mmModel').value.trim() || 'fal-ai/cat-vton',
+  };
+}
+function saveModel() {
+  const c = readModel();
+  if (c.provider === 'custom' && !c.endpoint) { toast('填上自建服务端点，例如 http://localhost:5199/generate'); return; }
+  if (c.provider === 'fal' && !c.key) { toast('fal.ai 需要 API Key'); return; }
+  TRYON.setConfig(c);
+  $('#mmState').textContent = '当前：' + TRYON.providerName();
+  closeModal('mModel');
+  toast('已切换到「' + TRYON.providerName() + '」，下次生成就用它');
+  track('model_config', { provider: c.provider });
+}
+async function testModel() {
+  const c = readModel();
+  TRYON.setConfig(c);
+  $('#mmState').textContent = '正在测试…';
+  const it = IT[0], b = B[2];
+  const r = await TRYON.generate({ human: TRYON.humanFor(b.id, B), garment: MUYE.wornFor(it, body()), desc: it.name,
+    body: { height: b.height, shape: b.shape, size: 'M' }, fallback: MUYE.wornFor(it, body()) });
+  $('#mmState').textContent = r.ok
+    ? `连接成功 · ${r.ms} ms · 用的是「${TRYON.providerName()}」`
+    : `调用失败：${r.error}（生成时会自动回落到本地预览）`;
+}
+function agreeReal() {
+  closeModal('mReal');
+  track('real_try_on_start');
+  go('live');
+  renderLiveItems();
+  if (window.LIVE) LIVE.start();
+}
+
+/* 真人试穿：右侧可选衣服列表 */
+function renderLiveItems() {
+  const el = $('#liveItems');
+  if (!el) return;
+  el.innerHTML = LIVE_LIST.map(i => `<div class="lr-item ${S.liveId === i.id ? 'on' : ''}" data-live="${i.id}">
+      <img src="${i.img}" alt="">
+      <div class="nm">${i.name}<span class="mt">${i.tone} · ${money(i.price)}</span></div>
+      <div style="font-size:20px;color:${S.liveId === i.id ? 'var(--ink)' : 'var(--mut)'}">${S.liveId === i.id ? '● 穿着中' : '试穿'}</div>
+    </div>`).join('');
+  $$('#liveItems [data-live]').forEach(n => n.onclick = () => {
+    S.liveId = n.dataset.live;
+    if (window.LIVE) LIVE.setGarment(S.liveId);
+    renderLiveItems();
+    track('live_switch_garment', { id: S.liveId });
+  });
+}
+
+/* ------------------------------ 手机端 ------------------------------ */
+function phoneURL() {
+  return `AI虚拟试衣-手机端.html?code=${S.code}&avatar=${S.avatar}&items=${selItems().map(i => i.id).join(',')}`;
+}
+function openPhone() {
+  const items = selItems();
+  if (!items.length) { toast('先选一件衣服，我们再看看手机上会看到什么'); return; }
+  const url = phonePageURL();
+  const link = $('#phoneOpenLink'); if (link) link.href = url;
+  $('#phoneMock').innerHTML = `
+    <div class="pvtop"><span>MUYE 沐野</span><span>取件码 ${S.code}</span></div>
+    <div class="pvhero">${MUYE.figureSVG({ body: S.avatar, items: items.map(i => i.id) })}</div>
+    <div class="pvrow"><b>尺码建议</b><span>${sizeAdvice()} 码 · 本店现货</span></div>
+    <div class="pvrow"><span>${items.map(i => i.name).join(' + ')}</span><b>${money(items.reduce((a, i) => a + i.price, 0))}</b></div>
+    <div class="pvbtn">加入购物车 ${money(items.reduce((a, i) => a + i.price, 0))}</div>
+    <div class="pvbtn gh">预约到店试衣</div>
+    <div class="pvbtn gh">加导购企业微信，让她帮你留货</div>
+    <div class="pvtip">你的试穿数据 7 天后自动删除 · 可随时一键删除</div>`;
+  openModal('mPhone');
+  track('phone_open');
+}
+function openPhoneFile() { window.open(phoneURL(), '_blank'); }
+
+/* ------------------------------ 演示控制 ------------------------------ */
+function demoFail() { S.failNext = true; toast('已开启失败演示：下次生成会失败，再点「重新生成」就会成功'); }
+function demoSlow() { S.genMs = 30000; toast('已切换为慢速网络：生成约 30 秒，可演示"边等边扫码"'); }
+function demoFast() { S.fastMode = true; S.genMs = 1500; toast('已切换为快速通道：生成约 2 秒'); }
+function demoIdle() { toast('已把无操作等待缩短，3 秒后自动清屏'); stopIdle(); T.idleLeft = 3; startIdle(); }
+function demoClear() { if (S.scr !== 'result') { toast('先走到结果页，再演示自动清除'); return; } stopClear(); T.clearLeft = 3; startClear(); }
+function demoReal() { openRealTry(); closeModal('mReal'); toast('真人试穿授权被拒 —— 已自动回落到虚拟形象，流程不中断'); }
+
+function toggleSide() {
+  const hide = !$('#sideL').classList.contains('hidden');
+  ['#sideL', '#sideR'].forEach(s => $(s).classList.toggle('hidden', hide));
+  document.querySelectorAll('.side').forEach(el => el.style.display = hide ? 'none' : '');
+  fitStage();
+}
+function kioskMode() {
+  document.body.classList.toggle('kiosk');
+  document.querySelector('.topbar').style.display = document.body.classList.contains('kiosk') ? 'none' : '';
+  document.querySelectorAll('.side').forEach(el => el.style.display = document.body.classList.contains('kiosk') ? 'none' : '');
+  document.querySelector('.layout').style.padding = document.body.classList.contains('kiosk') ? '0' : '20px';
+  document.querySelector('.bezel').style.padding = document.body.classList.contains('kiosk') ? '0' : '20px';
+  document.querySelector('.bezel').style.borderRadius = document.body.classList.contains('kiosk') ? '0' : '34px';
+  document.querySelector('.cam').style.display = document.body.classList.contains('kiosk') ? 'none' : '';
+  document.querySelector('.stage').style.borderRadius = document.body.classList.contains('kiosk') ? '0' : '20px';
+  document.querySelector('.bezel').style.boxShadow = document.body.classList.contains('kiosk') ? 'none' : '';
+  fitStage();
+}
+
+/* ------------------------------ 自适应缩放 ------------------------------ */
+function fitStage() {
+  const screen = $('#screen'), stage = $('#stage');
+  const kiosk = document.body.classList.contains('kiosk');
+  const sideW = kiosk ? 0 : Array.from(document.querySelectorAll('.side'))
+    .reduce((a, el) => a + (el.style.display === 'none' ? 0 : el.offsetWidth), 0);
+  const gaps = kiosk ? 0 : (document.querySelectorAll('.side').length * 20) + 40;
+  const availW = Math.max(300, window.innerWidth - sideW - (kiosk ? 0 : 80) - gaps);
+  const availH = Math.max(300, window.innerHeight - (kiosk ? 0 : 60) - (kiosk ? 0 : 80));
+  const custom = new URLSearchParams(location.search).get('s');
+  const s = custom ? parseFloat(custom) : Math.min(availW / 1080, availH / 1920);
+  screen.style.transform = `scale(${s})`;
+  stage.style.width = 1080 * s + 'px';
+  stage.style.height = 1920 * s + 'px';
+}
+
+/* ------------------------------ 埋点（演示用） ------------------------------ */
+const EVENTS = [];
+function track(name, data) {
+  EVENTS.push({ t: Date.now(), name, data });
+  console.log('%c[埋点] ' + name, 'color:#2E4F7C', data || '');
+}
+
+/* ------------------------------ 初始化 ------------------------------ */
+MREAL_HTML = $('#mReal').innerHTML;
+renderAttract(); renderAvatars(); renderTabs(); renderItems(); renderSel();
+$('#btnStart').onclick = () => { track('start_fitting'); go('avatar'); };
+$('#btnToOutfit').onclick = () => { track('next_to_outfit'); go('outfit'); };
+$('#btnGen').onclick = startGen;
+$$('.rseg button').forEach(b => b.onclick = () => setView(b.dataset.view));
+$$('[data-back]').forEach(b => b.onclick = () => { const order = ['attract', 'avatar', 'outfit', 'gen', 'result', 'fail']; const i = order.indexOf(S.scr); go(order[Math.max(0, i - 1)]); });
+document.addEventListener('pointerdown', () => { if (S.scr !== 'attract') { T.idleLeft = IDLE_SEC; } });
+/* 防止浏览器把"拖动模特"识别成拖拽图片（会吞掉滑动事件） */
+document.addEventListener('dragstart', e => { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (document.body.classList.contains('kiosk')) kioskMode(); } });
+$$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('on'); }));
+window.addEventListener('resize', fitStage);
+fitStage(); go('attract');
+
+/* ------------------------------ 摄像头自检 + 直达入口 ------------------------------ */
+async function camCheck() {
+  const el = $('#camStatus');
+  if (!el) return;
+  if (location.protocol === 'file:') {
+    el.innerHTML = '<i class="dot" style="background:#D93025;opacity:.85"></i>当前是 file:// 打开，浏览器会拒绝摄像头 —— 请用 启动原型.bat 或 localhost 链接';
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    el.innerHTML = '<i class="dot" style="background:#D93025;opacity:.85"></i>这个浏览器不支持摄像头，请用 Chrome / Edge 打开';
+    return;
+  }
+  try {
+    const list = await navigator.mediaDevices.enumerateDevices();
+    const cams = list.filter(d => d.kind === 'videoinput');
+    el.innerHTML = cams.length
+      ? '<i class="dot"></i>已检测到摄像头 · 点上面两个按钮即可开始（浏览器会问你"允许"）'
+      : '<i class="dot" style="background:#D93025;opacity:.85"></i>没检测到摄像头设备，可先用虚拟形象试穿';
+  } catch (e) {
+    el.innerHTML = '<i class="dot"></i>点上面两个按钮后，浏览器会询问摄像头权限，选择"允许"';
+  }
+}
+camCheck();
+/* ?start=photo / ?start=live 时，打开即请求摄像头（浏览器会弹权限提示） */
+(function autoStart() {
+  const st = new URLSearchParams(location.search).get('start');
+  if (st !== 'photo' && st !== 'live') return;
+  setTimeout(() => {
+    if (st === 'photo') { go('photo'); if (window.PHOTO) PHOTO.start(); }
+    else { go('live'); renderLiveItems(); if (window.LIVE) LIVE.start(); }
+  }, 300);
+})();
+if (window.TRYON) {
+  const setTag = () => {
+    const el = $('#modelTag'); if (!el) return;
+    const n = TRYON.providerName();
+    el.textContent = '· ' + (n.startsWith('本地') ? '本地预览' : n);
+  };
+  setTag();
+  document.addEventListener('click', setTag);
+}
+if (new URLSearchParams(location.search).get('kiosk')) kioskMode();
+
+/* ------------------------------ 演示/截图用状态跳转 ------------------------------ */
+window.__setState = function (o) {
+  o = o || {};
+  if (o.avatar) S.avatar = o.avatar;
+  if (o.sel) {
+    const first = o.sel.map(id => MUYE.byId(id)).filter(Boolean)[0];
+    S.look = first ? first.id : null;
+  }
+  if (o.cat) S.cat = o.cat;
+  renderAvatars(); renderTabs(); renderItems(); renderSel();
+  const b = body();
+  $('#curAvatarName').textContent = `${b.name} · ${b.height}cm · ${b.shape}`;
+  if (o.scr === 'result') { S.code = randCode(); S.genMs = 400; S.genResult = null; S.genOk = null; showResult(); if (o.flat) setView('flat'); }
+  else if (o.scr === 'live') { go('live'); S.liveId = o.liveId || S.liveId; renderLiveItems(); if (window.LIVE) LIVE.start(); }
+  else if (o.scr === 'gen') { S.genMs = o.ms || 18000; startGen(); if (o.at) setTimeout(() => { T.genAt = o.at; }, 0); }
+  else if (o.scr === 'fail') { S.code = randCode(); showFail(); }
+  else if (o.scr === 'rec') { renderRec(); go('rec'); }
+  else if (o.scr === 'privacy') { go('avatar'); openPrivacy(); }
+  else if (o.scr === 'real') { go('avatar'); openRealTry(); }
+  else { go(o.scr || 'attract'); }
+  return S.scr;
+};
+
+/* URL 参数直达某个状态：?scr=outfit&sel=t1,b1&kiosk=1 */
+(function initFromURL() {
+  const q = new URLSearchParams(location.search);
+  if (!q.get('scr') && !q.get('sel') && !q.get('avatar')) return;
+  __setState({
+    scr: q.get('scr'),
+    avatar: q.get('avatar'),
+    sel: q.get('sel') ? q.get('sel').split(',') : null,
+    cat: q.get('cat'),
+    flat: q.get('flat') === '1',
+  });
+})();
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
+

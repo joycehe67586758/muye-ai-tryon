@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MUYE 沐野 · 官方商城</title>
+<style>
+:root{
+  --ink:#111111; --ink2:#3D3D3D; --mut:#8C8C8C; --line:#E6E6E6; --line2:#F1F1F1;
+  --bg:#F5F5F5; --card:#FFFFFF; --soft:#F0F0F0; --danger:#D93025; --ok:#1F7A4D;
+  --r:14px; --r-lg:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#E9E9E9;color:var(--ink);font-variant-numeric:tabular-nums;overflow-x:hidden;
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.6}
+.phone{max-width:430px;width:100%;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:78px}
+.phone.wide{max-width:430px}
+/* 顶栏 */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:12px 16px}
+.top .wm{font-family:Georgia,"Songti SC",serif;font-weight:600;letter-spacing:.6px;font-size:18px}
+.top .sub{font-size:12px;color:var(--mut)}
+.top .act{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--ink2)}
+.badge{background:var(--ink);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
+.iconbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer}
+.back{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--ink);cursor:pointer}
+/* 通用 */
+.wrap{padding:14px 16px}
+h1{font-size:22px;font-weight:600;letter-spacing:-.2px;margin:0 0 6px}
+h2{font-size:16px;font-weight:600;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+h2 .more{margin-left:auto;font-size:12.5px;color:var(--mut);font-weight:400}
+p{margin:0 0 8px}
+.mut{color:var(--mut)}
+.sm{font-size:12.5px}
+.xs{font-size:11.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px}
+.card+.card{margin-top:12px}
+.row{display:flex;align-items:center;gap:12px}
+.row.between{justify-content:space-between}
+.btn{font-family:inherit;font-size:15px;font-weight:600;border-radius:999px;border:1px solid var(--line);
+  background:#fff;color:var(--ink);padding:12px 20px;cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.block{display:block;width:100%;text-align:center}
+.btn.sm{font-size:13px;padding:9px 14px}
+.btn[disabled]{opacity:.4}
+.tag{display:inline-block;font-size:11.5px;color:var(--ink2);background:var(--soft);border-radius:999px;padding:3px 9px}
+img{display:block;max-width:100%}
+.hr{height:1px;background:var(--line);margin:14px 0}
+/* 首页 */
+.hero{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#EDEDED}
+.hero .img{width:100%;aspect-ratio:4/3.4;object-fit:cover;object-position:center 18%}
+.hero .cap{position:absolute;left:20px;bottom:20px;right:20px}
+.hero .cap h3{font-size:24px;font-weight:600;margin:0 0 6px;letter-spacing:-.5px}
+.hero .cap p{font-size:13px;color:var(--ink2);margin:0 0 12px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px}
+.chip{flex:0 0 auto;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer}
+.pcard .ph{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center 16%;background:#F1F1F1}
+.pcard .meta{padding:9px 10px 11px}
+.pcard .nm{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard .pr{font-size:14px;font-weight:600;margin-top:4px}
+.pcard .st{font-size:11.5px;color:var(--mut)}
+.tryon-entry{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;border-radius:var(--r-lg);padding:16px;cursor:pointer}
+.tryon-entry .ic{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.14);display:flex;
+  align-items:center;justify-content:center;font-size:20px}
+.tryon-entry b{display:block;font-size:16px}
+.tryon-entry span{font-size:12.5px;opacity:.72}
+.tryon-entry .go{margin-left:auto;font-size:13px;opacity:.8}
+/* 商品详情 */
+.gallery{background:#F1F1F1;border-radius:var(--r-lg);overflow:hidden}
+.gallery img{width:100%;aspect-ratio:1/1.06;object-fit:cover;object-position:center 14%}
+.price{font-size:26px;font-weight:600;letter-spacing:-.5px}
+.swatch{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.08)}
+.swatch.on{box-shadow:0 0 0 2px var(--ink)}
+.sizebtn{min-width:46px;height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;
+  font-size:14px;cursor:pointer}
+.sizebtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sizebtn[disabled]{opacity:.3;text-decoration:line-through}
+.steps{display:flex;gap:6px;font-size:12.5px;color:var(--mut);align-items:center}
+.steps b{color:var(--ink)}
+/* 试穿 */
+.fig{background:#F1F1F1;border-radius:var(--r-lg);overflow:hidden}
+.fig img{width:100%;aspect-ratio:1/1.05;object-fit:cover;object-position:center 14%}
+.prog{height:4px;border-radius:999px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ink);width:0;transition:width .3s}
+.stages{list-style:none;margin:12px 0 0;padding:0}
+.stages li{display:flex;gap:10px;font-size:13.5px;color:var(--mut);padding:8px 0;border-bottom:1px solid var(--line2)}
+.stages li:last-child{border-bottom:0}
+.stages li.done{color:var(--ink)}
+.stages li .dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);flex:0 0 16px;margin-top:3px}
+.stages li.done .dot{background:var(--ink);border-color:var(--ink)}
+.stages li.on .dot{border-color:var(--ink);border-width:5px}
+/* 购物车 / 结算 */
+.crow{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line2)}
+.crow:last-child{border-bottom:0}
+.crow img{width:74px;height:92px;object-fit:cover;object-position:center 16%;border-radius:12px;background:#F1F1F1;flex:0 0 74px}
+.qty{display:flex;align-items:center;gap:10px;margin-top:8px}
+.qty button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer}
+.line{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;color:var(--ink2)}
+.line b{color:var(--ink);font-weight:600}
+.addr{border:1px dashed var(--line);border-radius:var(--r);padding:12px;font-size:13.5px}
+.pay{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line2);font-size:14px;cursor:pointer}
+.pay:last-child{border-bottom:0}
+.radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);margin-left:auto}
+.radio.on{border:5px solid var(--ink)}
+/* 底部 Tab */
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:430px;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding:8px 0 10px;z-index:30}
+.tabbar div{text-align:center;font-size:10.5px;color:var(--mut);cursor:pointer}
+.tabbar div.on{color:var(--ink);font-weight:600}
+.tabbar svg{display:block;margin:0 auto 3px;width:22px;height:22px}
+.fixedbar{position:fixed;left:50%;transform:translateX(-50%);bottom:64px;width:100%;max-width:430px;
+  background:rgba(245,245,245,.97);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:10px;z-index:25}
+.toast{position:fixed;left:50%;bottom:150px;transform:translate(-50%,12px);background:rgba(17,17,17,.94);
+  color:#fff;font-size:13.5px;padding:12px 18px;border-radius:12px;opacity:0;transition:.25s;z-index:50;
+  max-width:320px;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;z-index:40}
+.sheet.on{display:flex}
+.sheet .inner{background:#fff;width:100%;max-width:430px;margin:0 auto;border-radius:18px 18px 0 0;padding:18px 16px 24px}
+@media (min-width:900px){
+  body{background:#E9E9E9}
+  .phone{box-shadow:0 20px 60px rgba(0,0,0,.12);border-radius:0}
+}
+</style>
+<script>window.LAN_HOST="10.1.2.150";</script>
+</head>
+<body>
+<div class="phone" id="app"></div>
+<div class="tabbar" id="tabbar"></div>
+<div class="sheet" id="sheet"><div class="inner" id="sheetInner"></div></div>
+<div class="toast" id="toast"></div>
+<script>/* =========================================================================
+   换装模型接入层（可插拔）
+   - custom : 你自己的换装服务（ComfyUI / CatVTON / IDM-VTON 包一层 HTTP 即可）
+   - fal    : fal.ai 托管的 IDM-VTON / CatVTON（填 key 即可用）
+   - mock   : 不配任何东西时的本地回落（用已生成好的真人穿着照，保证演示不空手）
+
+   自定义端点协议（POST，JSON）：
+     请求 { human_image, garment_image, garment_description, body:{height,shape,size}, seed }
+     响应 { image_base64: "data:image/...;base64,xxx" }  或  { image_url: "https://..." }
+   ========================================================================= */
+const TRYON = (() => {
+  const KEY = 'muye_tryon_cfg';
+  let cfg = { provider: 'mock', endpoint: '', key: '', model: 'fal-ai/cat-vton', timeout: 90000, bodyScan: true };
+  try { Object.assign(cfg, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
+  const listeners = [];
+
+  const src2dataURL = src => new Promise((res, rej) => {
+    if (!src) return rej(new Error('缺少图片'));
+    if (src.startsWith('data:')) return res(src);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext('2d').drawImage(img, 0, 0);
+      res(c.toDataURL('image/jpeg', 0.92));
+    };
+    img.onerror = () => rej(new Error('图片读取失败 ' + src));
+    img.src = src;
+  });
+
+  function withTimeout(p, ms) {
+    return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), ms))]);
+  }
+
+  /* 核心：传入人像 + 服装 + 体型参数，拿回照片级试穿图 */
+  async function generate(opt) {
+    const t0 = Date.now();
+    const req = {
+      human_image: opt.human,
+      garment_image: opt.garment,
+      garment_description: opt.desc || '',
+      body: opt.body || {},
+      seed: Math.floor(Math.random() * 1e6),
+    };
+    const payload = () => ({
+      ...req,
+      human_image: opt.human, garment_image: opt.garment,
+    });
+    emit({ phase: 'start', provider: cfg.provider });
+    try {
+      let out;
+      if (cfg.provider === 'custom' && cfg.endpoint) {
+        emit({ phase: 'upload' });
+        const data = await withTimeout(fetch(cfg.endpoint, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(await materialize()),
+        }).then(async r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 160));
+          return r.json();
+        }), cfg.timeout);
+        out = out2img(data);
+      } else if (cfg.provider === 'fal') {
+        const body = await materialize();
+        const data = await withTimeout(fetch('https://fal.run/' + (cfg.model || 'fal-ai/cat-vton'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Key ' + cfg.key },
+          body: JSON.stringify({
+            human_image_url: body.human_image,
+            garment_image_url: body.garment_image,
+            garment_description: body.garment_description,
+          }),
+        }).then(async r => {
+          if (!r.ok) throw new Error('fal ' + r.status + ' ' + (await r.text()).slice(0, 200));
+          return r.json();
+        }), cfg.timeout);
+        out = (data.image && data.image.url) || data.image_url || (data.images && data.images[0] && data.images[0].url);
+        if (!out) throw new Error('fal 返回里没有图片: ' + JSON.stringify(data).slice(0, 160));
+      } else {
+        /* mock：本地回落，保证演示不空手 */
+        emit({ phase: 'render' });
+        await new Promise(r => setTimeout(r, 1200));
+        out = opt.fallback;
+        if (!out) throw new Error('没有可用的回落图');
+      }
+      emit({ phase: 'done', ms: Date.now() - t0, provider: cfg.provider });
+      return { ok: true, image: out, ms: Date.now() - t0, provider: cfg.provider };
+    } catch (e) {
+      emit({ phase: 'error', error: e.message });
+      return { ok: false, error: e.message, ms: Date.now() - t0, provider: cfg.provider, fallback: opt.fallback };
+    }
+    async function materialize() {
+      const [human, garment] = await Promise.all([
+        opt.human && opt.human.startsWith('data:') ? opt.human : src2dataURL(opt.human),
+        opt.garment && opt.garment.startsWith('data:') ? opt.garment : src2dataURL(opt.garment),
+      ]);
+      return { ...req, human_image: human, garment_image: garment };
+    }
+  }
+
+  function out2img(d) {
+    if (d.image_base64) return d.image_base64.startsWith('data:') ? d.image_base64 : 'data:image/jpeg;base64,' + d.image_base64;
+    if (d.image_url) return d.image_url;
+    if (d.image) return d.image;
+    if (d.output && d.output[0]) return d.output[0];
+    throw new Error('端点返回格式不对，需要 image_base64 或 image_url');
+  }
+
+  function emit(e) { listeners.forEach(f => { try { f(e); } catch (x) {} }); }
+
+  /* 让模型"按体型生成"：把人像换成对应体型的数字模特 */
+  function humanFor(bodyId, models) {
+    if (!cfg.bodyScan) return models[0].img;
+    const m = models.find(x => x.id === bodyId);
+    return (m || models[0]).img;
+  }
+
+  return {
+    generate, humanFor,
+    get config() { return { ...cfg }; },
+    setConfig(c) { Object.assign(cfg, c); save(); },
+    on(f) { listeners.push(f); },
+    providerName() { return { mock: '本地预览（未接入模型）', custom: '自建换装服务', fal: 'fal.ai 托管模型' }[cfg.provider] || cfg.provider; },
+  };
+})();
+window.TRYON = TRYON;
+</script>
+<script>
+/* ============================ 数据 ============================ */
+const A = 'assets/process/';
+const PRODUCTS = [
+  { id:'w1', cat:'top',    name:'燕麦羊毛开衫',   tone:'燕麦',   price:399,  origin:599,  stock:12, tag:'门店热卖',
+    img:A+'worn__w1.jpg', material:'100% 澳洲羊毛', care:'建议干洗', sizes:{S:3,M:5,L:3,XL:1}, desc:'微落肩版型，内搭白 T 或衬衫都好穿，春秋两季都能罩。' },
+  { id:'w2', cat:'top',    name:'真丝垂感衬衫',   tone:'月光白', price:599,  origin:799,  stock:6,  tag:'新品',
+    img:A+'worn__w2.jpg', material:'19 姆米桑蚕丝', care:'手洗或干洗', sizes:{S:2,M:2,L:2}, desc:'垂感好、不透，袖口有暗扣，适合通勤。' },
+  { id:'w3', cat:'top',    name:'重磅纯棉 T 恤',  tone:'石墨黑', price:199,  origin:259,  stock:30, tag:'基础款',
+    img:A+'worn__w3.jpg', material:'240g 精梳棉', care:'机洗 30℃', sizes:{S:8,M:12,L:8,XL:2}, desc:'肩线内收，洗后不易变形，作为打底最好用。' },
+  { id:'w7', cat:'bottom', name:'高腰阔腿长裤',   tone:'米色',   price:529,  origin:659,  stock:11, tag:'垂感',
+    img:A+'worn__w7.jpg', material:'醋酸混纺', care:'机洗轻柔', sizes:{S:3,M:5,L:3}, desc:'高腰显腿长，裤长特意做了两个版本，门店可免费改裤长。' },
+  { id:'w5', cat:'dress',  name:'雾霾蓝衬衫裙',   tone:'雾霾蓝', price:699,  origin:899,  stock:5,  tag:'新品',
+    img:A+'worn__w5.jpg', material:'天丝混纺', care:'手洗', sizes:{S:2,M:2,L:1}, desc:'收腰但不勒，袖子卷起来是另一种味道。' },
+  { id:'w4', cat:'outer',  name:'卡其长款风衣',   tone:'卡其',   price:1299, origin:1599, stock:4,  tag:'经典',
+    img:A+'worn__w4.jpg', material:'防水棉混纺', care:'干洗', sizes:{S:1,M:2,L:1}, desc:'经典双排扣，腰带可拆；身高 158 以上都不会压个子。' },
+  { id:'w6', cat:'outer',  name:'炭灰西装外套',   tone:'炭灰',   price:899,  origin:1099, stock:6,  tag:'通勤',
+    img:A+'worn__w6.jpg', material:'羊毛混纺', care:'干洗', sizes:{S:2,M:3,L:1}, desc:'短款版型，配阔腿裤或连衣裙都能提气场。' },
+];
+const CATS = [ {k:'all',n:'全部'}, {k:'top',n:'上装'}, {k:'bottom',n:'下装'}, {k:'dress',n:'连衣裙'}, {k:'outer',n:'外套'} ];
+const BODIES = [
+  { id:'b1', n:'158cm · 娇小', img:A+'models__m2.jpg' },
+  { id:'b2', n:'162cm · 丰满', img:A+'models__m4.jpg' },
+  { id:'b3', n:'165cm · 匀称', img:A+'models__m1.jpg' },
+  { id:'b4', n:'168cm · 运动', img:A+'models__m3.jpg' },
+  { id:'b5', n:'172cm · 偏瘦', img:A+'models__m6.jpg' },
+  { id:'b6', n:'176cm · 匀称', img:A+'models__m5.jpg' },
+];
+const MALE_IMG = {
+  w1:A+'worn__male_m1.jpg', w2:A+'worn__male_m2.jpg', w3:A+'worn__male_m3.jpg',
+  w7:A+'worn__male_m7.jpg', w4:A+'worn__male_m4.jpg', w6:A+'worn__male_m6.jpg',
+};
+const byId = id => PRODUCTS.find(p => p.id === id);
+const money = n => '¥' + Number(n).toLocaleString('zh-CN');
+const P = {
+  code: (new URLSearchParams(location.search).get('code') || '').toUpperCase(),
+  route: 'home', cat: 'all', pid: null,
+  body: 'b3', look: null,
+  size: {}, qty: {},
+  cart: [], pay: 'card', delivery: 'store',
+  order: null,
+  lang: 'zh',
+};
+/* 从大屏带过来的参数：?items=w4&avatar=m3&code=XXXX */
+function initFromQuery(){
+  const q = new URLSearchParams(location.search);
+  const items = (q.get('items') || '').split(',').filter(i => byId(i));
+  window.__male = ['m5','m6'].includes(q.get('avatar') || '');
+  if (items.length) {
+    const p = byId(items[0]);
+    P.look = p.id; P.pid = p.id;
+    P.size[p.id] = guessSize();
+    addToCart(p.id, 1, false);
+    P.route = 'tryonResult';
+  }
+}
+function guessSize(){
+  const h = { b1:158, b2:162, b3:165, b4:168, b5:172, b6:176 }[P.body] || 165;
+  const bulky = P.body === 'b2';
+  let s = h <= 162 ? 'S' : h <= 168 ? 'M' : h <= 172 ? 'L' : 'XL';
+  if (bulky && s === 'S') s = 'M';
+  if (bulky && s === 'M') s = 'L';
+  return s;
+}
+/* ============================ 状态与工具 ============================ */
+try { sessionStorage.setItem('t','1'); } catch(e) {}
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2000); }
+function go(route, opt){ P.route = route; if(opt&&opt.cat) P.cat=opt.cat; if(opt&&opt.pid) P.pid=opt.pid;
+  window.scrollTo(0,0); render(); }
+function track(name, data){ try { console.log('%c[埋点] '+name,'color:#111', data||''); } catch(e){} }
+function IMG(p) { return (window.__male && MALE_IMG[p.id]) ? MALE_IMG[p.id] : p.img; }
+function cartCount(){ return P.cart.reduce((a,i)=>a+i.qty,0); }
+function cartTotal(){ return P.cart.reduce((a,i)=>a+i.qty*byId(i.id).price,0); }
+function addToCart(id, qty, tip){
+  const found = P.cart.find(i=>i.id===id);
+  if (found) found.qty += qty; else P.cart.push({ id, qty, size: P.size[id] || guessSize() });
+  track('add_to_cart',{id,qty});
+  if (tip!==false) toast('已加入购物车');
+  render();
+}
+function setQty(id, d){ const it=P.cart.find(i=>i.id===id); if(!it) return; it.qty+=d;
+  if(it.qty<=0) P.cart=P.cart.filter(i=>i.id!==id); render(); }
+function sizeOf(p){ return P.size[p.id] || null; }
+/* ============================ 组件 ============================ */
+const topbar = (title, opts={}) => `
+  <div class="top">
+    ${opts.back ? `<div class="back" onclick="history.length>1?history.back():go('${opts.back}')">‹ 返回</div>` : `<div><div class="wm">MUYE 沐野</div><div class="sub">万象城 3F · 官方商城</div></div>`}
+    ${opts.back ? `<div style="font-weight:600">${title}</div>` : ''}
+    <div class="act">
+      ${opts.lang!==false ? `<span onclick="toggleLang()" style="cursor:pointer">${P.lang==='zh'?'EN':'中文'}</span>` : ''}
+      ${opts.cart!==false ? `<div class="iconbtn" onclick="go('cart')">🛍${cartCount()?`<span class="badge">${cartCount()}</span>`:''}</div>` : ''}
+    </div>
+  </div>`;
+const pcard = p => `<div class="pcard" onclick="go('pdp',{pid:'${p.id}'})">
+  <img class="ph" src="${IMG(p)}" alt="">
+  <div class="meta"><div class="nm">${p.name}</div>
+  <div class="pr">${money(p.price)} <span class="st" style="text-decoration:line-through">${money(p.origin)}</span></div>
+  <div class="st">${p.tone} · 本店 ${p.stock} 件</div></div></div>`;
+const tabbar = () => {
+  const T=[['home','首页','M3 11 12 3l9 8v9H3z'],['list','分类','M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'],
+    ['tryon','AI试穿','M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z'],['cart','购物车','M6 7h12l-1 11H7zM9 7a3 3 0 016 0'],
+    ['me','我的','M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0']];
+  const map={home:'home',list:'list',tryon:'tryon',cart:'cart',me:'me',pdp:'list',tryonResult:'tryon',checkout:'cart',done:'home'};
+  return T.map(([k,n,d])=>`<div class="${map[P.route]===k?'on':''}" onclick="go('${k}')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="${d}"/></svg>${n}</div>`).join('');
+};
+/* ============================ 页面 ============================ */
+function pageHome(){
+  const hot = PRODUCTS.slice(0,3);
+  return topbar() + `
+  <div class="wrap">
+    <div class="hero">
+      <img class="img" src="${A}worn__w4.jpg" alt="">
+      <div class="cap">
+        <h3>秋天的第一件风衣</h3>
+        <p>门店现货 · 今天下单可到店自提</p>
+        <button class="btn primary sm" onclick="go('pdp',{pid:'w4'})">看看这件</button>
+      </div>
+    </div>
+    <div class="tryon-entry" onclick="go('tryon')" style="margin-top:12px">
+      <div class="ic">✦</div>
+      <div><b>AI 虚拟试穿</b><span>选一个身形，30 秒看到你穿它的样子</span></div>
+      <div class="go">开始 ›</div>
+    </div>
+    <h2>本店精选 <span class="more" onclick="go('list')">全部 ${PRODUCTS.length} 款 ›</span></h2>
+    <div class="grid3">${hot.map(pcard).join('')}</div>
+    <h2>按品类逛</h2>
+    <div class="grid2">
+      ${[['top','上装','w2'],['bottom','下装','w7'],['dress','连衣裙','w5'],['outer','外套','w4']].map(([k,n,id])=>`
+        <div class="pcard" onclick="go('list',{cat:'${k}'})">
+          <img class="ph" style="aspect-ratio:4/3" src="${A}worn__${id}.jpg">
+          <div class="meta"><div class="nm">${n}</div><div class="st">${PRODUCTS.filter(p=>p.cat===k).length} 款可选</div></div>
+        </div>`).join('')}
+    </div>
+    <h2>门店与穿搭灵感</h2>
+    <div class="chips">${BODIES.map(b=>`<img src="${b.img}" style="width:74px;height:96px;object-fit:cover;object-position:center 12%;border-radius:12px" onclick="toast('造型灵感 · ${b.n}')">`).join('')}</div>
+    <div class="card" style="margin-top:14px">
+      <div class="row between"><b>万象城 3F 门店</b><span class="sm mut">10:00–22:00</span></div>
+      <div class="sm mut" style="margin-top:6px">支持到店自提 · 免费改裤长 · 30 天无理由退换</div>
+      <div class="row" style="margin-top:12px;gap:10px">
+        <button class="btn sm" style="flex:1" onclick="go('stores')">预约到店试衣</button>
+        <button class="btn sm" style="flex:1" onclick="toast('已发起导购对话（原型）')">联系导购</button>
+      </div>
+    </div>
+  </div>`;
+}
+function pageList(){
+  const list = P.cat==='all' ? PRODUCTS : PRODUCTS.filter(p=>p.cat===P.cat);
+  return topbar('全部商品') + `
+  <div class="wrap">
+    <h1>${CATS.find(c=>c.k===P.cat).n}</h1>
+    <div class="chips">${CATS.map(c=>`<div class="chip ${P.cat===c.k?'on':''}" onclick="go('list',{cat:'${c.k}'})">${c.n}</div>`).join('')}</div>
+    <div class="grid2" style="margin-top:12px">${list.map(pcard).join('')}</div>
+    <div class="card" style="margin-top:14px">
+      <b>不知道选哪件？</b>
+      <div class="sm mut" style="margin-top:6px">用 AI 试穿先看一眼上身效果，再决定要不要买。</div>
+      <button class="btn primary block" style="margin-top:12px" onclick="go('tryon')">去 AI 试穿</button>
+    </div>
+  </div>`;
+}
+function pagePdp(){
+  const p = byId(P.pid) || PRODUCTS[0];
+  const sz = sizeOf(p) || guessSize();
+  if (!P.size[p.id]) P.size[p.id] = sz;
+  const sizes = Object.keys(p.sizes);
+  return topbar('', {back:'list', cart:true}) + `
+  <div class="wrap">
+    <div class="gallery"><img src="${IMG(p)}" alt=""></div>
+    <div style="margin-top:14px">
+      <div class="row between"><div class="price">${money(p.price)}</div><div class="tag">${p.tag}</div></div>
+      <h1 style="margin-top:8px">${p.name}</h1>
+      <div class="sm mut">${p.tone} · ${p.material} · ${p.care}</div>
+      <p class="sm" style="margin-top:10px;color:var(--ink2)">${p.desc}</p>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="row between"><b>选择尺码</b><span class="sm mut">建议 ${sz} 码（按 ${(BODIES.find(b=>b.id===P.body)||BODIES[2]).n}）</span></div>
+      <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
+        ${sizes.map(s=>`<button class="sizebtn ${P.size[p.id]===s?'on':''}" ${p.sizes[s]?'':'disabled'}
+          onclick="P.size['${p.id}']='${s}';render()">${s}</button>`).join('')}
+      </div>
+      <div class="sm mut" style="margin-top:8px">本店现货 ${p.stock} 件 · 线上下单可次日达</div>
+    </div>
+    <div class="card">
+      <div class="row between"><b>AI 试穿这件</b><span class="tag">0 秒出效果</span></div>
+      <div class="sm mut" style="margin-top:6px">用你的身形参数生成上身效果，满意再加购。</div>
+      <button class="btn primary block" style="margin-top:12px" onclick="startTryon('${p.id}')">✦ AI 试穿这件</button>
+    </div>
+    <div class="card">
+      <div class="row between"><b>你可能还喜欢</b></div>
+      <div class="grid3" style="margin-top:10px">${PRODUCTS.filter(x=>x.id!==p.id).slice(0,3).map(pcard).join('')}</div>
+    </div>
+  </div>
+  <div class="fixedbar">
+    <button class="btn" style="flex:1" onclick="startTryon('${p.id}')">先试穿</button>
+    <button class="btn primary" style="flex:1.4" onclick="addToCart('${p.id}',1)">加入购物车 ${money(p.price)}</button>
+  </div>`;
+}
+/* --------- AI 试穿（站内入口） --------- */
+let tryonTimer = null;
+function pageTryon(){
+  return topbar('AI 虚拟试穿', {back:'home', cart:true}) + `
+  <div class="wrap">
+    <div class="steps">① 选身形 · <b>② 选商品 · ③ 生成</b></div>
+    <h1 style="margin-top:10px">先看上身，再决定买</h1>
+    <p class="sm mut">默认使用虚拟身形，不采集人脸、不需要手机号。生成结果会自动带进购物车流程。</p>
+    <h2>① 选一个和你接近的身形</h2>
+    <div class="grid3">
+      ${BODIES.map(b=>`<div class="pcard ${P.body===b.id?'sel':''}" onclick="P.body='${b.id}';render()"
+        style="${P.body===b.id?'outline:2px solid var(--ink);outline-offset:-2px':''}">
+        <img class="ph" src="${b.img}" style="aspect-ratio:3/4"><div class="meta"><div class="nm" style="font-size:12.5px">${b.n}</div></div></div>`).join('')}
+    </div>
+    <h2>② 选一件想试的</h2>
+    <div class="grid2">
+      ${PRODUCTS.map(p=>`<div class="pcard" onclick="startTryon('${p.id}')"
+        style="${P.look===p.id?'outline:2px solid var(--ink);outline-offset:-2px':''}">
+        <img class="ph" src="${IMG(p)}"><div class="meta"><div class="nm">${p.name}</div><div class="pr">${money(p.price)}</div>
+        <div class="st">${p.tone} · 本店 ${p.stock} 件</div></div></div>`).join('')}
+    </div>
+    <div class="card" style="margin-top:14px">
+      <b class="sm">演示用</b>
+      <div class="sm mut" style="margin-top:4px">点商品即开始生成；可用下面开关演示"生成失败 → 三级兜底"。</div>
+      <div class="row" style="margin-top:10px;gap:10px">
+        <button class="btn sm" style="flex:1" onclick="P.fail=!P.fail;toast(P.fail?'已开启失败演示':'已关闭失败演示')">${P.fail?'失败演示：开':'失败演示：关'}</button>
+        <button class="btn sm" style="flex:1" onclick="go('tryonResult')">直接看结果页</button>
+      </div>
+    </div>
+  </div>`;
+}
+function startTryon(id){
+  P.look = id; if(!P.size[id]) P.size[id] = guessSize();
+  P.genImg = null; P.genInfo = null;
+  P.route='trying'; P.prog=0; P.stage=0; render(); track('tryon_start',{id});
+  /* 调换装模型：人像 = 按体型选的数字模特；服装 = 商品图；失败回落本地实拍 */
+  let modelDone = false, modelImg = null, modelMsg = '';
+  if (window.TRYON) {
+    const p0 = byId(id), bd = BODIES.find(b=>b.id===P.body) || BODIES[2];
+    TRYON.generate({
+      human: TRYON.humanFor(P.body, BODIES), garment: p0.img, desc: p0.name,
+      body: { height: parseInt(bd.n) || 165, shape: bd.n.split('·')[1] || '', size: P.size[id] },
+      fallback: p0.img,
+    }).then(r=>{ modelImg = r.image; modelMsg = r.ok ? TRYON.providerName() : ('模型未接入，已用本地实拍：'+r.error); modelDone = true; })
+      .catch(e=>{ modelDone = true; });
+  } else modelDone = true;
+  clearInterval(tryonTimer);
+  const total = 16; let t = 0;
+  tryonTimer = setInterval(()=>{
+    t += 0.4; P.prog = Math.min(100, Math.round(t/total*100));
+    P.stage = Math.min(4, Math.floor(P.prog/25));
+    const bar=document.getElementById('pg'); if(bar) bar.style.width = P.prog+'%';
+    const pct=document.getElementById('pct'); if(pct) pct.textContent = P.prog+'%';
+    document.querySelectorAll('.stages li').forEach((li,i)=>li.className = i<P.stage?'done':(i===P.stage?'on':''));
+    if (P.prog>=100){
+      clearInterval(tryonTimer);
+      const wait = () => {
+        if (!modelDone) return setTimeout(wait, 150);
+        P.genImg = modelImg; P.genInfo = modelMsg;
+        P.route = P.fail ? 'tryonFail' : 'tryonResult'; render();
+      };
+      wait();
+    }
+  }, 400);
+}
+function pageTrying(){
+  const p = byId(P.look);
+  return topbar('正在生成', {back:'tryon'}) + `
+  <div class="wrap">
+    <div class="fig"><img src="${IMG(p)}" style="filter:blur(2px) saturate(.9);opacity:.85"></div>
+    <div class="row between" style="margin-top:14px"><b id="pct">${P.prog}%</b><span class="sm mut">约 16 秒</span></div>
+    <div class="prog" style="margin-top:8px"><i id="pg" style="width:${P.prog}%"></i></div>
+    <ul class="stages">
+      <li class="${P.stage>0?'done':(P.stage===0?'on':'')}"><i class="dot"></i>读取身形与版型参数</li>
+      <li class="${P.stage>1?'done':(P.stage===1?'on':'')}"><i class="dot"></i>服装贴合与褶皱计算</li>
+      <li class="${P.stage>2?'done':(P.stage===2?'on':'')}"><i class="dot"></i>面料质感与光影渲染</li>
+      <li class="${P.stage>3?'done':(P.stage===3?'on':'')}"><i class="dot"></i>生成效果图</li>
+    </ul>
+    <div class="card" style="margin-top:14px">
+      <b class="sm">不想等？</b>
+      <div class="sm mut" style="margin-top:4px">生成期间可以先逛，效果图会自动放进「我的 → 试穿记录」。</div>
+      <button class="btn sm block" style="margin-top:10px" onclick="go('list')">先去逛逛</button>
+    </div>
+  </div>`;
+}
+function pageTryonFail(){
+  const p = byId(P.look);
+  return topbar('生成失败', {back:'tryon'}) + `
+  <div class="wrap">
+    <div class="card" style="text-align:center">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--soft);display:flex;align-items:center;
+        justify-content:center;margin:6px auto 12px;font-size:26px">!</div>
+      <h1 style="font-size:19px">这次没生成出来</h1>
+      <p class="sm mut">不是你的操作问题：网络波动导致出图失败。你的选择和身形参数都帮你留着，不用重新选。</p>
+    </div>
+    <div class="card">
+      <div class="sm" style="font-weight:600">① 重新生成一次（推荐）</div>
+      <div class="sm mut">大约 16 秒，这次走备用渲染通道</div>
+      <button class="btn primary block" style="margin-top:10px" onclick="P.fail=false;startTryon('${p.id}')">重新生成</button>
+    </div>
+    <div class="card">
+      <div class="sm" style="font-weight:600">② 先看静态搭配图</div>
+      <div class="sm mut">不用等，立刻用商品实拍图继续往下走</div>
+      <button class="btn block" style="margin-top:10px" onclick="go('tryonResult')">看静态搭配</button>
+    </div>
+    <div class="card">
+      <div class="sm" style="font-weight:600">③ 稍后发到手机</div>
+      <div class="sm mut">先去逛，出图后通知你</div>
+      <button class="btn block" style="margin-top:10px" onclick="toast('已为你保留，出图后通知（原型）')">保留并继续逛</button>
+    </div>
+  </div>`;
+}
+function pageTryonResult(){
+  const p = byId(P.look) || PRODUCTS[0];
+  const sz = P.size[p.id] || guessSize();
+  const incart = P.cart.some(i=>i.id===p.id);
+  return topbar('试穿结果', {back:'tryon', cart:true}) + `
+  <div class="wrap">
+    <div class="fig"><img src="${P.genImg || IMG(p)}" alt=""></div>
+    <div class="sm mut" style="margin-top:8px">${P.genInfo ? '生成来源：' + P.genInfo : '上身效果由门店标准数字模特呈现'}</div>
+    <div class="row between" style="margin-top:12px">
+      <div><div style="font-weight:600">${p.name}</div><div class="sm mut">${p.tone} · 建议 ${sz} 码</div></div>
+      <div class="price" style="font-size:20px">${money(p.price)}</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="row between"><b class="sm">尺码建议</b><span class="tag">${sz}</span></div>
+      <div class="sm mut" style="margin-top:6px">按 ${(BODIES.find(b=>b.id===P.body)||BODIES[2]).n} 计算；门店现货 ${p.stock} 件，可免费改裤长。</div>
+    </div>
+    <div class="card">
+      <b class="sm">这一步决定了怎么买</b>
+      <div class="sm mut" style="margin-top:6px">试穿满意 → 加入购物车 → 结算（门店自提或快递），也可以先约到店再试一次。</div>
+    </div>
+    <div class="card">
+      <b class="sm">你可能还适合</b>
+      <div class="grid3" style="margin-top:10px">${PRODUCTS.filter(x=>x.id!==p.id).slice(0,3).map(pcard).join('')}</div>
+    </div>
+  </div>
+  <div class="fixedbar">
+    <button class="btn" style="flex:1" onclick="go('tryon')">再试一件</button>
+    ${incart ? `<button class="btn primary" style="flex:1.4" onclick="go('cart')">去购物车结算</button>`
+      : `<button class="btn primary" style="flex:1.4" onclick="addToCart('${p.id}',1)">加入购物车 ${money(p.price)}</button>`}
+  </div>`;
+}
+function pageCart(){
+  if (!P.cart.length) return topbar('购物车',{back:'home'}) + `
+    <div class="wrap"><div class="card" style="text-align:center;padding:40px 20px">
+      <div style="font-size:34px">🛍</div>
+      <h1 style="font-size:18px;margin-top:10px">购物车还是空的</h1>
+      <p class="sm mut">先去逛逛，或者用 AI 试穿看看上身效果再决定。</p>
+      <button class="btn primary block" style="margin-top:6px" onclick="go('tryon')">去 AI 试穿</button>
+    </div></div>`;
+  const total = cartTotal();
+  const ship = P.delivery==='store' ? 0 : 12;
+  return topbar('购物车',{back:'home'}) + `
+  <div class="wrap">
+    <div class="card">
+      ${P.cart.map(i=>{ const p=byId(i.id); return `
+        <div class="crow">
+          <img src="${IMG(p)}">
+          <div style="flex:1">
+            <div class="row between"><b style="font-size:14px">${p.name}</b><span class="mut" style="cursor:pointer" onclick="setQty('${p.id}',-99)">删除</span></div>
+            <div class="sm mut">${p.tone} · 尺码 ${i.size}</div>
+            <div class="row between" style="margin-top:6px">
+              <div class="price" style="font-size:16px">${money(p.price)}</div>
+              <div class="qty"><button onclick="setQty('${p.id}',-1)">−</button><span>${i.qty}</span><button onclick="setQty('${p.id}',1)">＋</button></div>
+            </div>
+          </div>
+        </div>`;}).join('')}
+    </div>
+    <div class="card">
+      <div class="line"><span>商品合计</span><b>${money(total)}</b></div>
+      <div class="line"><span>配送 / 自提</span><b>${ship?money(ship):'门店自提 ¥0'}</b></div>
+      <div class="line"><span>新人券</span><b>-¥50</b></div>
+      <div class="hr"></div>
+      <div class="row between"><b>应付</b><div class="price">${money(Math.max(0,total+ship-50))}</div></div>
+    </div>
+    <div class="card">
+      <b class="sm">取货方式</b>
+      <div class="pay" onclick="P.delivery='store';render()"><span>门店自提 · 万象城 3F</span><span class="sm mut">今天可取</span><span class="radio ${P.delivery==='store'?'on':''}"></span></div>
+      <div class="pay" onclick="P.delivery='ship';render()"><span>快递配送</span><span class="sm mut">预计 2–3 天</span><span class="radio ${P.delivery==='ship'?'on':''}"></span></div>
+    </div>
+  </div>
+  <div class="fixedbar">
+    <button class="btn" style="flex:1" onclick="go('list')">继续逛</button>
+    <button class="btn primary" style="flex:1.6" onclick="go('checkout')">去结算 ${money(Math.max(0,total+ship-50))}</button>
+  </div>`;
+}
+function pageCheckout(){
+  const total = cartTotal();
+  const ship = P.delivery==='store' ? 0 : 12;
+  const due = Math.max(0, total+ship-50);
+  return topbar('确认订单',{back:'cart'}) + `
+  <div class="wrap">
+    <div class="card">
+      <div class="addr"><b>${P.delivery==='store'?'门店自提 · 万象城 3F':'收货地址'}</b>
+      <div class="sm mut" style="margin-top:4px">${P.delivery==='store'?'10:00–22:00 可取 · 需出示取货码':'张女士 138****6621 · 上海市静安区南京西路 1266 号'}</div></div>
+    </div>
+    <div class="card">
+      ${P.cart.map(i=>{const p=byId(i.id);return `<div class="crow"><img src="${IMG(p)}">
+        <div style="flex:1"><b style="font-size:14px">${p.name}</b>
+        <div class="sm mut">尺码 ${i.size} · 数量 ${i.qty}</div>
+        <div class="price" style="font-size:15px;margin-top:4px">${money(p.price*i.qty)}</div></div></div>`;}).join('')}
+    </div>
+    <div class="card">
+      <b class="sm">支付方式</b>
+      ${[['card','银行卡'],['wallet','Apple Pay / Google Pay'],['later','先享后付（Klarna）']].map(([k,n])=>`
+        <div class="pay" onclick="P.pay='${k}';render()"><span>${n}</span><span class="radio ${P.pay===k?'on':''}"></span></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="line"><span>商品合计</span><b>${money(total)}</b></div>
+      <div class="line"><span>运费</span><b>${ship?money(ship):'¥0'}</b></div>
+      <div class="line"><span>优惠</span><b>-¥50</b></div>
+      <div class="hr"></div>
+      <div class="row between"><b>应付</b><div class="price">${money(due)}</div></div>
+      <div class="sm mut" style="margin-top:8px">支持 30 天无理由退换 · 门店自提可现场试穿后再决定</div>
+    </div>
+  </div>
+  <div class="fixedbar">
+    <div style="flex:1"><div class="sm mut">应付</div><div style="font-weight:600;font-size:18px">${money(due)}</div></div>
+    <button class="btn primary" style="flex:1.4" onclick="placeOrder()">提交订单</button>
+  </div>`;
+}
+function placeOrder(){
+  P.order = { no:'MY' + Date.now().toString().slice(-8), amount: Math.max(0, cartTotal() + (P.delivery==='store'?0:12) - 50),
+    items: P.cart.map(i=>({id:i.id,qty:i.qty,size:i.size})), delivery: P.delivery, pay: P.pay };
+  P.cart = [];
+  track('place_order', { no: P.order.no });
+  go('done');
+}
+function pageDone(){
+  const o = P.order;
+  return topbar('下单成功',{cart:false,lang:false}) + `
+  <div class="wrap">
+    <div class="card" style="text-align:center">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--ink);color:#fff;display:flex;
+        align-items:center;justify-content:center;margin:8px auto 14px;font-size:28px">✓</div>
+      <h1 style="font-size:20px">下单成功</h1>
+      <p class="sm mut">订单号 ${o?o.no:'—'} · 应付 ${o?money(o.amount):'—'}</p>
+      <div class="sm mut" style="margin-top:6px">${o&&o.delivery==='store'?'门店自提：到店出示取货码，可先试穿再决定':'快递配送：预计 2–3 天送达'}</div>
+    </div>
+    <div class="card">
+      <div class="row between"><b>取货 / 核销码</b><span class="tag">${P.code||'MY3F88'}</span></div>
+      <div class="sm mut" style="margin-top:6px">到店报这个码即可，导购可以直接帮你调货改裤长。</div>
+    </div>
+    <div class="card">
+      <b class="sm">接下来</b>
+      <div class="sm mut" style="margin-top:6px">① 到店试穿后再决定是否保留 ② 不合适可 30 天退换 ③ 试穿记录可在「我的」里查看或一键删除。</div>
+    </div>
+  </div>
+  <div class="fixedbar">
+    <button class="btn" style="flex:1" onclick="go('home')">继续逛</button>
+    <button class="btn primary" style="flex:1.4" onclick="go('order')">查看订单</button>
+  </div>`;
+}
+function pageOrder(){
+  const o = P.order;
+  return topbar('我的订单') + `
+  <div class="wrap">
+    ${o ? `<div class="card">
+      <div class="row between"><b>订单 ${o.no}</b><span class="tag">待取货</span></div>
+      ${o.items.map(i=>{const p=byId(i.id);return `<div class="crow"><img src="${IMG(p)}">
+        <div style="flex:1"><b style="font-size:14px">${p.name}</b><div class="sm mut">尺码 ${i.size} · ×${i.qty}</div>
+        <div class="price" style="font-size:15px;margin-top:4px">${money(p.price*i.qty)}</div></div></div>`;}).join('')}
+      <div class="hr"></div>
+      <div class="row between"><span class="sm mut">实付</span><b>${money(o.amount)}</b></div>
+      <div class="sm mut" style="margin-top:6px">取货码 ${P.code||'MY3F88'} · ${o.delivery==='store'?'门店自提':'快递配送'}</div>
+    </div>` : `<div class="card" style="text-align:center;padding:36px 20px">
+      <div style="font-size:30px">🧾</div><h1 style="font-size:18px;margin-top:8px">还没有订单</h1>
+      <p class="sm mut">先去挑一件，或者用 AI 试穿看看上身效果。</p>
+      <button class="btn primary block" style="margin-top:6px" onclick="go('home')">去逛逛</button></div>`}
+  </div>`;
+}
+function pageMe(){
+  return topbar('我的') + `
+  <div class="wrap">
+    <div class="card">
+      <div class="row"><div style="width:52px;height:52px;border-radius:50%;background:var(--soft)"></div>
+        <div><b>未登录</b><div class="sm mut">登录后可同步试穿记录与订单</div></div>
+        <button class="btn sm" style="margin-left:auto" onclick="toast('原型不接入真实登录')">登录</button></div>
+    </div>
+    <div class="card">
+      <div class="row between"><b>试穿记录</b><span class="sm mut">${P.look?1:0} 条</span></div>
+      ${P.look?`<div class="crow" style="border-bottom:0"><img src="${IMG(byId(P.look))}">
+        <div style="flex:1"><b style="font-size:14px">${byId(P.look).name}</b>
+        <div class="sm mut">建议 ${P.size[P.look]||guessSize()} 码 · 3 天后自动删除</div>
+        <button class="btn sm" style="margin-top:8px" onclick="go('tryonResult')">再看一次</button></div></div>`
+        :`<p class="sm mut">还没有试穿记录，去 AI 试穿看看。</p>`}
+    </div>
+    <div class="card">
+      <div class="pay" onclick="go('order')"><span>我的订单</span><span class="sm mut">›</span></div>
+      <div class="pay" onclick="go('stores')"><span>预约到店试衣</span><span class="sm mut">›</span></div>
+      <div class="pay" onclick="toast('已发起导购对话（原型）')"><span>联系导购</span><span class="sm mut">›</span></div>
+    </div>
+    <div class="card">
+      <b class="sm">隐私与数据</b>
+      <div class="sm mut" style="margin-top:6px">我们默认不采集人脸。如果你用过真人试穿，画面只在本机处理、不上传、不留存；试穿数据 7 天后自动删除。</div>
+      <button class="btn block" style="margin-top:10px;color:var(--danger);border-color:#EBD6D3"
+        onclick="P.look=null;toast('已删除你的试穿数据');render()">删除我的试穿数据</button>
+      <div class="sm xs mut" style="margin-top:8px">海外版本：GDPR / CCPA 合规说明与数据导出入口会放在这里。</div>
+    </div>
+    <div class="card">
+      <b class="sm">换装模型</b>
+      <div class="sm mut" style="margin-top:6px">当前：<b>${window.TRYON ? TRYON.providerName() : '本地预览'}</b>。默认用已生成的真人穿着照保证不空手；配置端点或 key 后即为真实模型，按所选体型生成。</div>
+      <select style="font:inherit;margin-top:10px;padding:10px;border-radius:12px;border:1px solid var(--line);width:100%"
+        onchange="TRYON.setConfig({provider:this.value});toast('已切换模型来源');render()">
+        ${['mock','custom','fal'].map(k=>`<option value="${k}" ${TRYON.config.provider===k?'selected':''}>${({mock:'本地预览（未接入模型）',custom:'自建换装服务',fal:'fal.ai 托管模型'})[k]}</option>`).join('')}
+      </select>
+      <input placeholder="自建服务端点 http://localhost:5199/generate" value="${TRYON.config.endpoint||''}"
+        style="font:inherit;margin-top:8px;padding:10px;border-radius:12px;border:1px solid var(--line);width:100%"
+        onchange="TRYON.setConfig({endpoint:this.value});toast('端点已保存')">
+      <input placeholder="API Key（仅存本机）" value="${TRYON.config.key||''}" type="password"
+        style="font:inherit;margin-top:8px;padding:10px;border-radius:12px;border:1px solid var(--line);width:100%"
+        onchange="TRYON.setConfig({key:this.value});toast('Key 已保存')">
+      <button class="btn sm block" style="margin-top:10px" onclick="testModelPhone()">测试连接</button>
+      <div id="pmState" class="sm mut" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="pay" onclick="toggleLang()"><span>语言 / Language</span><span class="sm mut">${P.lang==='zh'?'简体中文':'English'}</span></div>
+      <div class="pay"><span>版本</span><span class="sm mut">v1.0 原型</span></div>
+    </div>
+  </div>`;
+}
+function pageStores(){
+  return topbar('预约到店试衣',{back:'home'}) + `
+  <div class="wrap">
+    <div class="card">
+      <b>万象城 3F · MUYE 沐野</b>
+      <div class="sm mut" style="margin-top:6px">今天 10:00–22:00 · 距你 1.2km</div>
+      <div class="sm" style="margin-top:10px">可预约时段</div>
+      <div class="chips">${['14:00','15:30','16:30','18:00','19:30'].map((t,i)=>`<div class="chip ${i===2?'on':''}" onclick="toast('已选 ${t}')">${t}</div>`).join('')}</div>
+      <button class="btn primary block" style="margin-top:12px" onclick="toast('已预约 16:30 到店试衣（原型）')">确认预约</button>
+    </div>
+    <div class="card">
+      <b class="sm">到店可以做什么</b>
+      <div class="sm mut" style="margin-top:6px">· 现场用大屏做 AI 虚拟试穿，再进试衣间确认真实感受<br>· 免费改裤长（约 30 分钟）<br>· 导购按你的身形再推荐两个版型</div>
+    </div>
+  </div>`;
+}
+/* ============================ 渲染 ============================ */
+function toggleLang(){ P.lang = P.lang==='zh'?'en':'zh';
+  toast(P.lang==='zh'?'已切换到简体中文':'Switched to English (prototype)'); render(); }
+async function testModelPhone(){
+  const el = document.getElementById('pmState');
+  if (el) el.textContent = '正在测试…';
+  const p0 = PRODUCTS[0], bd = BODIES[2];
+  const r = await TRYON.generate({ human: TRYON.humanFor(P.body, BODIES), garment: p0.img, desc: p0.name,
+    body: { height: 165, shape: '匀称', size: 'M' }, fallback: p0.img });
+  if (el) el.textContent = r.ok ? `连接成功 · ${r.ms} ms · ${TRYON.providerName()}` : `调用失败：${r.error}（会自动回落本地预览）`;
+}
+const PAGES = { home:pageHome, list:pageList, pdp:pagePdp, tryon:pageTryon, trying:pageTrying,
+  tryonFail:pageTryonFail, tryonResult:pageTryonResult, cart:pageCart, checkout:pageCheckout,
+  done:pageDone, order:pageOrder, me:pageMe, stores:pageStores };
+function render(){
+  document.getElementById('app').innerHTML = (PAGES[P.route] || pageHome)();
+  document.getElementById('tabbar').innerHTML = tabbar();
+}
+initFromQuery();
+render();
+track('app_open', { from: P.code ? 'kiosk' : 'direct' });
+</script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 虚拟试衣大屏 · 原型与产品方案</title>
+<style>
+:root{--ink:#1B1A17;--ink2:#4C4842;--mut:#8C877C;--line:#E7E1D5;--line2:#EFEAE0;
+  --bg:#F5F5F5;--card:#fff;--cream:#F1ECE1;--khaki:#111111;--khakiD:#111111;--khakiSoft:#F0F0F0;
+  --blue:#111111;--blueSoft:#F0F0F0;--rust:#D93025;--rustSoft:#FDECEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-variant-numeric:tabular-nums;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding:34px 28px 80px}
+.hero{display:flex;justify-content:space-between;gap:30px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:24px}
+.hero h1{margin:6px 0 10px;font-size:38px;letter-spacing:-.5px;line-height:1.25}
+.hero .sub{font-size:16.5px;color:var(--ink2);max-width:640px;margin:0}
+.tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{font-size:12.5px;background:var(--khakiSoft);color:var(--khakiD);border-radius:999px;padding:5px 12px;font-weight:600}
+.tag.blue{background:var(--blueSoft);color:var(--blue)}
+.tag.rust{background:var(--rustSoft);color:var(--rust)}
+.btns{display:flex;flex-direction:column;gap:10px;flex:0 0 260px;padding-top:8px}
+a.btn{display:block;text-align:center;text-decoration:none;font-size:15px;font-weight:600;border-radius:13px;
+  padding:14px 16px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:.15s}
+a.btn:hover{border-color:#C6BCA8}
+a.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+a.btn.primary:hover{background:#000000}
+.note{font-size:12.5px;color:var(--mut);line-height:1.7}
+h2{font-size:20px;margin:38px 0 14px;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+h2:before{content:"";width:14px;height:2px;background:var(--khaki)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.card h3{margin:0 0 10px;font-size:14px;letter-spacing:1.2px;color:var(--mut);font-weight:600}
+.card p,.card li{font-size:14.5px;color:var(--ink2);margin:0 0 8px}
+.card b{color:var(--ink)}
+.card ul{margin:0;padding-left:18px}
+.card ul li{margin-bottom:6px}
+.flow{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.step{flex:1 1 150px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.step i{display:block;font-style:normal;font-size:12px;color:var(--khakiD);font-weight:700;letter-spacing:1px;margin-bottom:6px}
+.step b{display:block;font-size:15px;margin-bottom:4px}
+.step span{font-size:13px;color:var(--mut);line-height:1.55;display:block}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.shot{width:100%;border:1px solid var(--line);border-radius:14px;background:#fff}
+.shots{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.shots figure{margin:0}
+.shots figcaption{font-size:12.5px;color:var(--mut);text-align:center;padding-top:6px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top}
+th{font-size:12.5px;color:var(--mut);font-weight:600;letter-spacing:.6px;background:#FFFFFF}
+tr:last-child td{border-bottom:0}
+kbd{background:var(--cream);border-radius:6px;padding:2px 7px;font-size:12.5px;font-family:inherit}
+footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;font-size:13px;color:var(--mut)}
+@media (max-width:900px){.grid,.split{grid-template-columns:1fr}.shots{grid-template-columns:repeat(2,1fr)}
+ .hero{flex-direction:column}.btns{flex:none;width:100%}}
+@media print{
+  body{background:#fff}
+  .wrap{max-width:none;padding:0 12mm}
+  .btns,.shots,.no-print{display:none!important}
+  h2{margin-top:16px}
+  .page2{break-before:page}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div>
+      <div style="font-size:13px;letter-spacing:2px;color:var(--khakiD);font-weight:700">MUYE 沐野 · RETAIL AI</div>
+      <h1>AI 虚拟试衣大屏：让顾客 30 秒看到"自己穿这件"</h1>
+      <p class="sub">商场门店的 AI 试衣大屏 + 手机端承接。核心不是"换脸"，而是把<b>试衣间排队、脱穿成本、版型不确定</b>这三个真实阻碍拿掉，并把结果变成一条可归因的到店转化链路。</p>
+      <div class="tagrow">
+        <span class="tag">真实模特 · 真实服装</span>
+        <span class="tag blue">摄像头实时 AR 试衣镜</span>
+        <span class="tag">等待与失败兜底</span>
+        <span class="tag rust">默认不采集人脸</span>
+        <span class="tag blue">出海就绪（i18n / GDPR）</span>
+        <span class="tag">完整商城闭环：逛 → 试 → 买 → 订单</span>
+      </div>
+    </div>
+    <div class="btns">
+      <a class="btn primary" href="kiosk.html?kiosk=1" target="_blank">打开大屏原型（全屏演示）</a>
+      <a class="btn" href="phone.html" target="_blank">打开手机端商城（完整流程）</a>
+      <a class="btn" href="phone.html?items=w4&code=MY3F88" target="_blank">从大屏扫码进来（带试穿结果）</a>
+      <a class="btn" href="kiosk.html?livemode=image&scr=live" target="_blank">看实时 AR 试衣镜</a>
+      <div class="note">大屏原型支持键盘 <kbd>Esc</kbd> 退出全屏。摄像头需用 <b>启动原型.bat</b> 通过 localhost 打开（浏览器要求）。</div>
+    </div>
+  </div>
+
+  <h2>一页产品方案</h2>
+    <div class="card" style="margin-bottom:16px">
+      <h3>完整闭环（手机端站点已实现，可直接走完）</h3>
+      <p style="font-size:14px">首页 → 分类/商品详情 → <b>AI 虚拟试穿（站内入口，不是孤岛）</b> → 试穿结果 → 加入购物车 → 结算（门店自提 / 快递 + 卡 / Apple Pay / 先享后付）→ 下单成功 → 我的订单（含取货码）→ 预约到店试衣 / 联系导购。</p>
+      <p style="font-size:14px">大屏负责"看到"，手机站点负责"买下"：大屏生成结果 → 扫码 → 手机端打开就是<b>带着这件衣服的试穿结果页</b>，用户不需要重新找商品。</p>
+      <p style="font-size:14px"><b>换装模型已接入（可插拔）：</b>页面里可切换「本地预览 / 自建换装服务 / fal.ai 托管模型」。自建服务只要 POST <code>{human_image, garment_image, garment_description, body, seed}</code> 并返回 <code>image_base64</code> 或 <code>image_url</code>；其中 <code>human_image</code> 就是<b>按用户所选体型挑的数字模特</b>——这就是"按体型生成"的落点。未配置或调用失败会自动回落本地预览，并保留三条兜底。交付目录自带 <code>src/mock-model-server.js</code>，可一键验证链路真的通。</p>
+    </div>
+  <div class="grid">
+    <div class="card">
+      <h3>目标用户</h3>
+      <p><b>主：到店但不愿排队试衣的顾客</b>（25–40 岁，决策快，怕麻烦，逛店时间碎片化）。痛点是试衣间排队、脱穿成本高、看实物想象不出上身效果。</p>
+      <p><b>次：陪同者与等候者</b>——顺手玩一下，是天然的传播与停留时长来源。</p>
+      <p><b>B 端：门店导购</b>——大屏是他们的"留客工具"，结果必须能被导购接手。</p>
+    </div>
+    <div class="card">
+      <h3>核心流程（大屏 ≤3 步 / ≤60 秒）</h3>
+      <p>① 驻足即可开始（<b>无注册、无输入</b>，默认虚拟形象）<br>
+      ② 选一个和自己接近的身形<br>
+      ③ 选 1 件上装 + 1 件下装（或连衣裙 / 外套）<br>
+      ④ 生成中：可等待、可离场（扫码带走）<br>
+      ⑤ 结果页：搭配 + 尺码 + 现货 + 扫码<br>
+      ⑥ 手机端：详情、库存、预约试衣、加购、导购</p>
+      <p><b>全程零文字输入</b>，每步只有一种动作（点卡片），候选 ≤6 个。</p>
+    </div>
+    <div class="card">
+      <h3>大屏与手机端分工</h3>
+      <p>大屏 = <b>公共场景的"看到"</b>：吸引驻足、快速出效果、不承载隐私与支付。<br>
+      手机 = <b>私人场景的"决策"</b>：留存、比价、尺码、库存、预约、支付。</p>
+      <p>桥接物是一个 <b>一次性取件码 + 二维码</b>（7 天有效，不填手机号也能用）；真正把"试穿"变成"可归因线索"的就是这一步。</p>
+    </div>
+  </div>
+
+  <div class="flow" style="margin-top:16px">
+    <div class="step"><i>STEP 1</i><b>选形象</b><span>6 个真实模特照片，按身高体型分类；真人试穿需单独授权。</span></div>
+    <div class="step"><i>STEP 2</i><b>选服装</b><span>真实商品图，最多 1 上装 + 1 下装；连衣裙会替换上下装。</span></div>
+    <div class="step"><i>STEP 3</i><b>生成</b><span>四阶段进度 + 剩余秒数；不想等可扫码带走，人去逛。</span></div>
+    <div class="step"><i>STEP 4</i><b>结果</b><span>上身效果 + 搭配 + 尺码建议 + 门店现货 + 二维码。</span></div>
+    <div class="step"><i>STEP 5</i><b>手机端</b><span>加购 / 预约试衣 / 联系导购；可一键删除试穿数据。</span></div>
+  </div>
+
+  <div class="split" style="margin-top:16px">
+    <div class="card">
+      <h3>等待与失败（本题最容易答漏的一环）</h3>
+      <ul>
+        <li><b>等待不空白</b>：四阶段进度（读版型 → 贴合 → 渲染 → 出图）+ 剩余秒数 + 可取消。</li>
+        <li><b>等待可离场</b>：生成中就把二维码放出来，结果直接推到手机，人不必站在屏幕前。</li>
+        <li><b>失败三级兜底</b>：自动重试 1 次 → 云端失败就回落本地 AR 截图 → 再不行给静态搭配图 + 商品信息。<b>绝不让人空手而归。</b></li>
+        <li><b>文案归因</b>：把责任放在系统侧（"不是你的操作问题"），并强调"你的搭配已经帮你留着"。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>隐私与合规</h3>
+      <ul>
+        <li><b>默认不采集人脸</b>：默认用虚拟形象，不需要摄像头、不需要手机号。</li>
+        <li><b>真人试穿是显式可选项</b>：单独授权弹层，画面仅本机处理、不上传、不训练，生成后丢弃原始帧。</li>
+        <li><b>自动清除</b>：结果图 60 秒自动清除；无操作 90 秒清屏回首页（防止身后的人看到）。</li>
+        <li><b>一次性 token</b>：取件码 7 天有效、不填手机号也能用；手机端一键删除。</li>
+        <li><b>出海合规</b>：默认"不采集生物特征"这一条设计，本身就同时规避了 <b>GDPR 第 9 条特殊类别数据</b>与 CCPA/CPRA 的敏感信息义务；配 <b>EN 优先</b>双语、门店本地号码、区域化尺码（US/EU/UK/亚洲码对照）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>AI Native 的关键取舍（成本 / 延迟 / 能力边界）</h2>
+  <table>
+    <tr><th style="width:22%">环节</th><th style="width:39%">设计</th><th>为什么这么设计</th></tr>
+    <tr><td><b>双档渲染</b></td><td>本地实时 AR（0 秒 / 免费 / 看版型颜色）＋ 云端换装模型（约 18 秒 / 按次计费 / 照片级成图）</td><td>把"等待与成本"的选择权交给用户：想快就快，想好看就等。门店高峰期不会被 GPU 排队拖死。</td></tr>
+    <tr><td><b>成本控制</b></td><td>同款 + 同体型的成品图缓存复用；每店每日生成上限；失败不计费、失败自动降级</td><td>单次换装模型的算力成本是这门生意最容易失控的一项；用缓存和降级把"每客成本"固定住。</td></tr>
+    <tr><td><b>能力边界</b></td><td>只做"服装贴合"，不做人脸识别、不认身份；对透明材质 / 复杂印花这类模型不稳定品类，只给静态搭配图</td><td>诚实的能力边界比虚假的高完成度更能保住体验与合规。</td></tr>
+    <tr><td><b>可评测</b></td><td>肩线/贴图偏移误差、生成 P95 时延、失败率与重试率、扫码率——每次换模型先跑回归</td><td>AI 功能必须有可回归的指标，否则优化只能靠感觉。</td></tr>
+    <tr><td><b>降级链</b></td><td>云端换装失败 → 本地 AR 截图 → 静态搭配图 → 至少留下商品与库存信息</td><td>任何一环挂掉，用户都必须能拿到"下一步动作"。</td></tr>
+  </table>
+
+  <h2>转化路径与指标</h2>
+  <div class="split">
+    <div class="card">
+      <h3>链路</h3>
+      <p>驻足 → <b>开始试穿</b> → 选形象 → 选服装 → 生成 → 看到效果 → <b>扫码带走</b> → 手机端看尺码与库存 → 加购 / 预约试衣 / 联系导购 → <b>到店成交</b>。</p>
+      <p>关键动作全部埋点：<code>start_fitting</code>、<code>pick_item</code>、<code>gen_start/success/fail</code>、<code>retry_gen</code>、<code>phone_open</code>、<code>add_to_cart</code>、<code>book_fitting</code>。</p>
+    </div>
+    <div class="card">
+      <h3>看的指标</h3>
+      <p>开始率、生成成功率、P95 生成时延、<b>扫码率</b>、手机端停留与加购率、预约试衣率、门店连带率、单次生成成本、失败后重试成功率。</p>
+      <p>线下最该盯的一个数：<b>扫码率</b>——它直接决定这块屏是"玩具"还是"线索入口"。</p>
+    </div>
+  </div>
+
+  <h2>原型界面（可点击运行）</h2>
+  <div class="shots">
+    <figure><img class="shot" src="screenshots/01-待机页.png"><figcaption>待机页：3 秒讲清"能干什么"</figcaption></figure>
+    <figure><img class="shot" src="screenshots/03-选择服装.png"><figcaption>选服装：真实商品图，最多一上一下</figcaption></figure>
+    <figure><img class="shot" src="screenshots/04-生成等待.png"><figcaption>生成中：进度 + 剩余秒数 + 可离场扫码</figcaption></figure>
+    <figure><img class="shot" src="screenshots/05-结果页.png"><figcaption>结果页：搭配 / 尺码 / 现货 / 扫码</figcaption></figure>
+    <figure><img class="shot" src="screenshots/06-失败兜底.png"><figcaption>失败兜底：三级降级，不留死路</figcaption></figure>
+    <figure><img class="shot" src="screenshots/07-隐私说明.png"><figcaption>隐私说明：用交互讲合规，不是免责声明</figcaption></figure>
+    <figure><img class="shot" src="screenshots/10-手机端.png"><figcaption>手机端：把效果图变成一次决策</figcaption></figure>
+    <figure><img class="shot" src="screenshots/01-待机页.png" style="opacity:.999"><figcaption>视觉：黑白极简 · 黑色唯一重点色</figcaption></figure>
+  </div>
+
+  <h2>手机端完整商城流程（点击可走完）</h2>
+  <div class="shots">
+    <figure><img class="shot" src="screenshots/20-商城首页.png"><figcaption>首页：AI 试穿是一个站内入口</figcaption></figure>
+    <figure><img class="shot" src="screenshots/22-商品详情.png"><figcaption>商品详情：先试穿 / 直接加购</figcaption></figure>
+    <figure><img class="shot" src="screenshots/24-试穿结果.png"><figcaption>试穿结果：尺码 + 价格 + 加购</figcaption></figure>
+    <figure><img class="shot" src="screenshots/25-生成失败兜底.png"><figcaption>失败兜底：三条路都能继续买</figcaption></figure>
+    <figure><img class="shot" src="screenshots/26-购物车.png"><figcaption>购物车：自提 / 快递 + 优惠</figcaption></figure>
+    <figure><img class="shot" src="screenshots/27-结算.png"><figcaption>结算：卡 / Apple Pay / 先享后付</figcaption></figure>
+    <figure><img class="shot" src="screenshots/28-下单成功.png"><figcaption>下单成功：订单号 + 取货码</figcaption></figure>
+    <figure><img class="shot" src="screenshots/30-我的.png"><figcaption>我的：试穿记录与一键删除数据</figcaption></figure>
+  </div>
+
+  <h2>交付物与运行方式</h2>
+  <div class="split">
+    <div class="card">
+      <h3>交付物</h3>
+      <ul>
+        <li><b>AI虚拟试衣-大屏原型.html</b>：1080×1920 商场竖屏，含摄像头实时试衣镜。</li>
+        <li><b>AI虚拟试衣-手机端原型.html</b>：扫码后的承接页，支持 <code>?code=&avatar=&items=</code> 参数。</li>
+        <li><b>一页产品方案.pdf</b> 与 <b>AI工具使用说明.md</b>。</li>
+        <li><b>src/</b>：源码（渲染内核 / 交互状态机 / 摄像头模块 / 构建脚本）。</li>
+        <li><b>assets/process/</b>：生成并抠好的真人模特与真实服装素材。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>运行</h3>
+      <p>双击 <b>启动原型.bat</b>：会用 Node 起一个本地静态服务并自动打开浏览器。</p>
+      <p>为什么必须这样：浏览器规定 <b>摄像头只能在 localhost 或 https 下打开</b>，直接双击 HTML（file://）会被拦住。原型本身零依赖、无需安装任何包。</p>
+      <p>演示建议：大屏全屏（按 <kbd>Esc</kbd> 退出）→ 走完一单 → 用右侧「演示控制」逐个点失败、慢网络、自动清屏，再打开手机端。</p>
+    </div>
+  </div>
+
+  <h2 class="page2">AI 工具使用说明</h2>
+  <div class="split">
+    <div class="card">
+      <h3>用了什么工具</h3>
+      <ul>
+        <li><b>Codex（GPT-5 类模型）</b>：需求拆解、状态机与交互逻辑、HTML/CSS 实现、构建与截图验证脚本。</li>
+        <li><b>AI 图像生成</b>：6 张真人模特照片 + 7 件真实服装素材（绿幕生成后本地抠图）。</li>
+        <li><b>浏览器自动化</b>：无头 Chrome 截图 + 自动质检（绿幕占比 / 主体位置打分，自动挑合格素材）。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>关键提示词（节选）</h3>
+      <p>1）模特："全身正面人像摄影，…穿纯白圆领T恤与浅米色直筒长裤，纯色米白影棚背景，柔光均匀，服装电商 lookbook 风格，全身完整入镜，无文字无水印"。</p>
+      <p>2）服装："服装商品摄影：一件卡其色长款风衣，挂立展示，正面完整；背景是完全均匀的纯绿色 chroma key green #00B140，无渐变无阴影；不要出现人物、模特、人体、衣架、文字或水印"。</p>
+      <p>3）原型："先做状态机：待机 / 选形象 / 选服装 / 生成中 / 结果 / 失败 / 真人试穿；失败态必须有三级兜底与真实可点的重试；隐私做成可见交互（60 秒自动清除、90 秒清屏、一次性取件码）"。</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>本人完成的主要修改（请按实际情况增删）</h3>
+    <ul>
+      <li>重新定义了产品定位：把"AI 换脸试衣"改成"门店决策加速器 + 线索入口"，据此砍掉了注册、支付与大屏详情页。</li>
+      <li>补全了出题人最可能看漏的一环：失败三级降级与"等待期可离场"，并把责任归属写进文案。</li>
+      <li>把隐私从"免责声明"改成一套可见交互：默认不采集人脸、真人试穿单独授权、60 秒自动清除、90 秒清屏、一次性取件码、一键删除。</li>
+      <li>按 AI Native 出海视角补了成本与合规取舍：本地 AR / 云端换装双档、缓存与限额、能力边界、GDPR 与尺码本地化。</li>
+      <li>视觉从电商促销风改为卡其 × 蓝的北欧极简，并重做了真人模特与真实服装素材；把竖屏原型与桌面阅读体验分开处理。</li>
+      <li>把模型生成的代码逐段验证：修掉初始化报错、图片缩放变形、白底抠图残留等问题，并保证无摄像头也可完成全流程。</li>
+    </ul>
+  </div>
+
+  <h2>交付说明与已知限制（面试官请先看这里）</h2>
+  <div class="split">
+    <div class="card">
+      <h3>怎么看</h3>
+      <ul>
+        <li>双击 <b>启动原型.bat</b> → 自动打开本页；服务监听在局域网，手机连同一 Wi-Fi 可扫码。</li>
+        <li>大屏：<code>AI虚拟试衣-大屏原型.html?kiosk=1</code>（自动全屏，Esc 退出）。</li>
+        <li>摄像头：必须通过 localhost / https 打开，首次会弹"允许使用摄像头"。</li>
+        <li>快速看摄像头效果：<code>?kiosk=1&amp;start=photo</code>（打开即进拍照试穿）或 <code>&amp;start=live</code>（实时镜）。</li>
+        <li>手机端：<code>AI虚拟试衣-手机端原型.html</code>，可直接走完 逛→试→购物车→结算→下单。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>哪些是真的、哪些是演示替代</h3>
+      <ul>
+        <li><b>真的：</b>摄像头授权与实时姿态追踪、拍照试穿全流程、换装模型接入层（含本地联调服务，端到端验证过）、二维码为真实可扫 URL、完整下单链路、自动化的 50 项断言。</li>
+        <li><b>演示替代：</b>未配置模型 key 时，试穿效果用已生成的真人穿着照兜底（结果页会标注"本地预览"）；支付与库存为模拟数据。360° 每件商品都有 4 个角度帧（正面 / 45° / 侧面 / 背面，男女装各一套）。</li>
+        <li><b>生产化路径：</b>接入云端换装模型（按体型实时生成照片级成图）→ 商品与库存接门店中台 → 取件码接短链与一次性 token → 埋点接门店数据看板。</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    原型为个人练习作品，品牌与商品为虚构示例。素材由 AI 生成（无真实人物、无第三方版权图），服装贴合为本地实时合成，生产环境建议接入换装模型（IDM-VTON / CatVTON 类）输出照片级成图。
+  </footer>
+</div>
+</body>
+</html>
+
+

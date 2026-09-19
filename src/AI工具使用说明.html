@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>AI 工具使用说明</title>
+<style>
+@page{size:A4;margin:13mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:#1B1A17;font-size:8.9pt;line-height:1.55}
+.hd{border-bottom:1.5px solid #1B1A17;padding-bottom:6px;margin-bottom:9px}
+.hd h1{font-size:15pt}
+.hd .sub{font-size:8.6pt;color:#6E6A62;margin-top:3px}
+h2{font-size:9.8pt;margin:7px 0 3px;padding-left:8px;border-left:3px solid #111111;line-height:1.2}
+h2.b{border-left-color:#111111}
+p{margin-bottom:4px}
+ul{margin:0 0 4px 13px}
+li{margin-bottom:3px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quote{background:#FBF9F5;border:1px solid #E7E1D5;border-radius:5px;padding:5px 7px;font-size:8.1pt;color:#4C4842;line-height:1.5;margin:2px 0 5px;white-space:pre-wrap}
+.k{background:#F0F0F0;color:#111111;border-radius:3px;padding:0 3px;font-weight:600}
+.foot{margin-top:10px;border-top:1px solid #E7E1D5;padding-top:6px;font-size:7.9pt;color:#8C877C}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>AI 工具使用说明</h1>
+  <div class="sub">AI 虚拟试衣大屏原型 · 使用的工具、关键提示词、本人完成的主要修改</div>
+</div>
+
+<div class="cols">
+  <div>
+    <h2>一、用了哪些工具</h2>
+    <ul>
+      <li><b>Codex（GPT-5 类编码 Agent）</b>：需求拆解、状态机与交互逻辑、HTML/CSS/JS 实现、构建脚本、自动化验证。</li>
+      <li><b>AI 图像生成</b>：6 张真人模特照片（全身、统一米杏影棚背景）+ 7 件真实服装素材（绿幕底生成）。</li>
+      <li><b>无头浏览器自动化</b>：批量截图验证 + 素材自动质检（按绿幕占比、主体大小与居中程度给候选图打分，自动挑合格素材）。</li>
+      <li><b>本地图像后处理</b>：浏览器 Canvas 完成的洪水填充抠图（保留白色衣物）、去水印、自动裁边、清残留。</li>
+      <li><b>MediaPipe Pose</b>：浏览器端姿态追踪，把服装图实时贴合到真人肩线上。</li>
+    </ul>
+
+    <h2>二、关键提示词（节选）</h2>
+    <p><b>1）真人模特</b></p>
+    <div class="quote">全身正面人像摄影，年轻亚裔女性，身高165cm 匀称身材，自然站姿直立，双臂自然下垂略离开身体，穿纯白圆领T恤与浅米色直筒长裤、白色运动鞋，纯色米白影棚背景，柔光均匀照明，服装电商 lookbook 风格，全身完整入镜（从头顶到鞋底都在画面内），无文字无水印</div>
+    <p><b>2）真实服装（绿幕便于抠图）</b></p>
+    <div class="quote">服装商品摄影：一件卡其色长款风衣外套，有翻领和腰带，挂立展示，正面展示，衣服在画面正中且完整；背景是完全均匀的纯绿色 chroma key green #00B140，背景没有渐变、没有阴影、没有道具；画面中不要出现人物、模特、人体、头部、衣架、文字或水印</div>
+    <p><b>3）原型实现（约束性提示）</b></p>
+    <div class="quote">先做状态机：待机 / 选形象 / 选服装 / 生成中 / 结果 / 失败 / 真人试穿。失败态必须有三级兜底且每一项都能真的点通；隐私必须做成可见交互（结果图 60 秒自动清除、无操作 90 秒清屏、一次性取件码 7 天）；不要用真人照片占位符，不要用外部图片链接，所有文案用最终中文文案。</div>
+  </div>
+
+  <div>
+    <h2 class="b">三、本人完成的主要修改</h2>
+    <p class="sub" style="color:#6E6A62;font-size:8.7pt">（请按你的真实情况增删，以下为原型迭代中实际发生的调整）</p>
+    <ul>
+      <li><b>重新定义产品定位。</b>AI 最初给的是"AI 换脸试衣"，我改成"门店决策加速器 + 线索入口"，据此砍掉注册、支付与大屏长文详情。</li>
+      <li><b>补齐最关键的一环。</b>把失败三级降级与"等待期可离场"写成必须实现的状态，并逐条验证可点通；文案的责任归属改为系统侧。</li>
+      <li><b>把隐私从声明变成交互。</b>默认不采集人脸、真人试穿单独授权、60 秒自动清除、90 秒清屏、一次性取件码、手机端一键删除。</li>
+      <li><b>按 AI Native 出海视角补取舍。</b>双档渲染（本地实时 AR / 云端换装）、缓存与限额、能力边界、可评测指标，以及 GDPR 与尺码本地化。</li>
+      <li><b>视觉重做。</b>从电商促销风改为卡其 × 蓝的北欧极简；一开始的插画风格不够真实，改成"真人照片 + 真实服装"合成。</li>
+      <li><b>解决模型输出里的坑。</b>修掉初始化报错（旧形象 ID 失效导致脚本中断）、竖屏原型在电脑上过小、图片被拉伸变形、绿幕抠图残留与衣架残留等问题，并保证没有摄像头也能完成全流程。</li>
+      <li><b>补自动化验证。</b>用无头浏览器把六个关键状态逐个截图复查，并对素材做自动打分筛选，减少人工返工。</li>
+    </ul>
+
+    <h2>四、怎么用 AI 做"验证"，而不只是做"生成"</h2>
+    <ul>
+      <li>写了 6 个无头浏览器自动化脚本，把 50 项断言跑成回归：大屏全流程 18 项、拍照试穿 9 项、实时镜 7 项（用 Chrome 假摄像头）、换装模型端到端 5 项、手机端商城 11 项、360° 交互与遮挡检测。</li>
+      <li><b>用 AI 定位真 bug：</b>倒计时卡住 → 查出多个生成任务共用同一个定时器变量互相踩；360° 拖动无效 → 查出压暗遮罩层截走了指针事件 + 浏览器原生"拖拽图片"吞掉了滑动事件；扫码进手机端白屏 → 查出初始化早于页面定义。</li>
+      <li><b>也识别了 AI 测试的盲区：</b>合成鼠标事件不会触发浏览器原生拖拽，所以自动化一直"通过"，而真人拖动无效——这说明关键交互必须人工过一遍，我把这条写进了交付说明。</li>
+      <li>用脚本量取几何锚点（模特肩线/胯线、服装抠图的肩宽占比），再用"下摆落点"驱动缩放，解决了"衣服穿不到身上"的问题；最后改成直接用真人穿着照，从根上绕开合成失真。</li>
+    </ul>
+
+    <h2>五、AI 用得好的地方 / 我自己判断的地方</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:8.7pt">
+      <tr><td style="padding:3px 5px;border-bottom:1px solid #EFEAE0;width:34%"><b>交给 AI</b></td>
+      <td style="padding:3px 5px;border-bottom:1px solid #EFEAE0">代码骨架、样式实现、重复性的素材处理与截图验证、文案初稿</td></tr>
+      <tr><td style="padding:3px 5px"><b>必须自己判断</b></td>
+      <td style="padding:3px 5px">取舍（砍掉什么）、失败与隐私的策略、成本与延迟的平衡、门店真实流程与导购角色、视觉调性</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="foot">
+  说明：原型中的模特与服装素材均由 AI 生成（无真实人物、无第三方版权图片）；品牌与商品为虚构示例。实时试衣为本地实时合成，生产环境建议接入换装模型（IDM-VTON / CatVTON 类）输出照片级成图，并保留本地降级链路。
+</div>
+</body>
+</html>
+
+
